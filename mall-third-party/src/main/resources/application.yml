@@ -1,0 +1,15 @@
+server:
+  port: 9100
+spring:
+  application:
+    name: mall-third-party
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+aliyun:
+  oss:
+    access-id: LTAI4GAsC8GSYgti3eMLoC****
+    access-key: 8twiGxw2MC7EnexvpNN2D****
+    endpoint: oss-cn-beijing.aliyuncs.com
+    bucket: mall-data

@@ -6,10 +6,30 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: gateway-test
-          uri: https://www.baidu.com
+        - id: third_party_route
+          uri: lb://mall-third-party
           predicates:
-            - Query=url,baidu
+              #精准的放前面
+            - Path=/api/third/**
+          filters:
+            - RewritePath=/api/(?<segment>/?.*),/$\{segment}
+
+        - id: product_route
+          uri: lb://mall-product
+          predicates:
+              #精准的放前面
+            - Path=/api/product/**
+          filters:
+            - RewritePath=/api/(?<segment>/?.*),/$\{segment}
+
+        - id: admin_route
+          uri: lb://renren-fast
+          predicates:
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<segment>/?.*),/renren-fast/$\{segment}
+
+
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848

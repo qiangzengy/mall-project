@@ -38,8 +38,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         //1.查询所有分类
         List<CategoryEntity> categoryEntityList=baseMapper.selectList(null);
         //2.组装成父子树形结构
-        //2.1找到所有的一级分类，
-
+        //2.1找到所有的一级分类
         List<CategoryEntity> categoryList=categoryEntityList.stream().filter(categoryEntity ->
                 //一级分类，parentCid为0；
                 categoryEntity.getParentCid()==0
@@ -81,5 +80,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
         return categoriesList;
 
+    }
+
+
+    @Override
+    public void removeCategory(List<Long> ids) {
+        //TODO
+        baseMapper.deleteBatchIds(ids);
     }
 }
