@@ -1,0 +1,15 @@
+server:
+  port: 9000
+spring:
+  application:
+    name: mall-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: gateway-test
+          uri: https://www.baidu.com
+          predicates:
+            - Query=url,baidu
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
