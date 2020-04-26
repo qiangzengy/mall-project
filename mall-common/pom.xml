@@ -46,6 +46,19 @@
             <version>8.0.17</version>
         </dependency>
 
+        <!--swagger-->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.7.0</version>
+        </dependency>
+        <!--swagger ui-->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.7.0</version>
+        </dependency>
+
          <dependency>
              <groupId>javax.servlet</groupId>
              <artifactId>servlet-api</artifactId>
@@ -65,6 +78,7 @@
              <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
          </dependency>
 
+        <!--         编写一个自定义的校验注解-->
          <dependency>
              <groupId>javax.validation</groupId>
              <artifactId>validation-api</artifactId>

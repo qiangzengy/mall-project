@@ -3,18 +3,19 @@ package com.qiangzengy.mall.product.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.qiangzengy.common.valid.AddGroup;
+import com.qiangzengy.common.valid.UpdateGroup;
+import io.swagger.annotations.ApiModelProperty;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import com.qiangzengy.mall.product.entity.BrandEntity;
 import com.qiangzengy.mall.product.service.BrandService;
 import com.qiangzengy.common.utils.PageUtils;
 import com.qiangzengy.common.utils.R;
 
+import javax.validation.Valid;
 
 
 /**
@@ -30,10 +31,7 @@ public class BrandController {
     @Autowired
     private BrandService brandService;
 
-    /**
-     * 列表
-     */
-    @RequestMapping("/list")
+    @RequestMapping(value = "/list",method = RequestMethod.GET)
     //@RequiresPermissions("product:brand:list")
     public R list(@RequestParam Map<String, Object> params){
         PageUtils page = brandService.queryPage(params);
@@ -45,7 +43,7 @@ public class BrandController {
     /**
      * 信息
      */
-    @RequestMapping("/info/{brandId}")
+    @RequestMapping(value = "/info/{brandId}",method = RequestMethod.POST)
     //@RequiresPermissions("product:brand:info")
     public R info(@PathVariable("brandId") Long brandId){
 		BrandEntity brand = brandService.getById(brandId);
@@ -55,21 +53,21 @@ public class BrandController {
 
     /**
      * 保存
+     * 开启校验功能@Valid
      */
-    @RequestMapping("/save")
+    @RequestMapping(value = "/save",method = RequestMethod.POST)
     //@RequiresPermissions("product:brand:save")
-    public R save(@RequestBody BrandEntity brand){
+    public R save(@Validated(AddGroup.class) @RequestBody BrandEntity brand){
 		brandService.save(brand);
-
         return R.ok();
     }
 
     /**
      * 修改
      */
-    @RequestMapping("/update")
+    @RequestMapping(value = "/update",method = RequestMethod.POST)
     //@RequiresPermissions("product:brand:update")
-    public R update(@RequestBody BrandEntity brand){
+    public R update(@Validated(UpdateGroup.class) @RequestBody BrandEntity brand){
 		brandService.updateById(brand);
 
         return R.ok();
