@@ -34,9 +34,9 @@ public class AttrAttrgroupRelationController {
     /**
      * 列表
      */
-    @RequestMapping("/list")
+    @RequestMapping("/list/{catelogId}")
     //@RequiresPermissions("product:attrattrgrouprelation:list")
-    public R list(@RequestParam Map<String, Object> params){
+    public R list(@RequestParam Map<String, Object> params,@PathVariable("catelogId") Long catelogId){
         PageUtils page = attrAttrgroupRelationService.queryPage(params);
 
         return R.ok().put("page", page);

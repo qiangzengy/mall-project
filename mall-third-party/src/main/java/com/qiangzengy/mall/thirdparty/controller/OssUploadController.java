@@ -79,6 +79,7 @@ public class OssUploadController {
 
 
 
+    @RequestMapping("/upload")
     public R uploadFile(MultipartFile file) {
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessId, accessKey);
 

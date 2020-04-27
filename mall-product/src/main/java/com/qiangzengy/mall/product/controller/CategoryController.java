@@ -28,6 +28,8 @@ import com.qiangzengy.common.utils.R;
 @RestController
 @RequestMapping("product/category")
 public class CategoryController {
+
+
     @Autowired
     private CategoryService categoryService;
 
@@ -39,7 +41,6 @@ public class CategoryController {
     public R list(){
 
         List<CategoryEntity> allList=categoryService.treeList();
-
         return R.ok().put("data", allList);
     }
 

@@ -3,9 +3,7 @@ package com.qiangzengy.mall.product.service.impl;
 import com.qiangzengy.common.utils.Query;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -88,4 +86,39 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         //TODO
         baseMapper.deleteBatchIds(ids);
     }
+
+
+    @Override
+    public Long[] findCatelogPath(Long catelogId) {
+
+        List<Long> path=new ArrayList<>();
+
+        /*
+         * 由于我们需要这中形式[父，子，孙]，
+         * 而findParentPath(catelogId,path)，返回结果为[孙，子，父]
+         * 需要做逆序转换
+         */
+        List<Long> paths=findParentPath(catelogId,path);
+        //逆序转换
+        Collections.reverse(paths);
+        return (Long[])paths.toArray();
+    }
+
+
+    private List<Long>  findParentPath(Long parentId,List<Long> path){
+        path.add(parentId);
+        //1。根据id查出该实体
+        CategoryEntity entity= baseMapper.selectById(parentId);
+        baseMapper.selectById(parentId);
+        //2。判断是否有父id
+        if(parentId!=0){
+            //根据父id，查找父亲的实体
+            findParentPath(entity.getParentCid(),path);
+
+        }
+        return path;
+    }
+
+
+
 }

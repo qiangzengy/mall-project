@@ -1,6 +1,9 @@
 package com.qiangzengy.mall.product.service.impl;
 
 import com.qiangzengy.common.utils.Query;
+import com.qiangzengy.mall.product.entity.AttrEntity;
+import com.qiangzengy.mall.product.entity.AttrGroupEntity;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -25,5 +28,4 @@ public class AttrAttrgroupRelationServiceImpl extends ServiceImpl<AttrAttrgroupR
 
         return new PageUtils(page);
     }
-
 }
