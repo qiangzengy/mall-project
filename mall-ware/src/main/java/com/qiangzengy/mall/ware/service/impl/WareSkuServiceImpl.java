@@ -66,9 +66,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             skuEntity.setStock(skuNum);
             skuEntity.setWareId(wareId);
             skuEntity.setStockLocked(0);
-            //TODO 远程查询sku的名字，如果失败，整个事务无需回滚
-            //1、自己catch异常
-            //TODO 还可以用什么办法让异常出现以后不回滚?
+            //远程查询sku的名字，如果失败，整个事务无需回滚，自己catch异常
             try {
                 R info = productFeignService.info(skuId);
                 Map<String,Object> data = (Map<String, Object>) info.get("skuInfo");
