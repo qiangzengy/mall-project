@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.qiangzengy.mall.product.entity.AttrEntity;
 import com.qiangzengy.mall.product.entity.vo.AttrGroupRelationVo;
+import com.qiangzengy.mall.product.entity.vo.AttrGroupWithAttrsVo;
 import com.qiangzengy.mall.product.service.AttrService;
 import com.qiangzengy.mall.product.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import com.qiangzengy.common.utils.R;
 @RestController
 @RequestMapping("product/attrgroup")
 public class AttrGroupController {
+
     @Autowired
     private AttrGroupService attrGroupService;
 
@@ -142,5 +144,22 @@ public class AttrGroupController {
         PageUtils page = attrService.getNoRelationAttr(params,attrgroupId);
         return R.ok().put("page",page);
     }
+
+
+    /**
+     * 获取分类下所有分组&关联属性
+     * /product/attrgroup/{catelogId}/withattr
+     * @param catelogId
+     * @return
+     */
+    @GetMapping("/{catelogId}/withattr")
+    public R getAttrGroupWithAttrs(@PathVariable("catelogId")Long catelogId){
+
+        //1、查出当前分类下的所有属性分组，
+        //2、查出每个属性分组的所有属性
+        List<AttrGroupWithAttrsVo> vos =  attrGroupService.getAttrGroupWithAttrsByCatelogId(catelogId);
+        return R.ok().put("data",vos);
+    }
+
 
 }

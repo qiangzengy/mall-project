@@ -5,11 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.qiangzengy.mall.product.entity.CategoryEntity;
 import com.qiangzengy.mall.product.service.CategoryService;
@@ -26,7 +22,7 @@ import com.qiangzengy.common.utils.R;
  * @date 2020-04-23 21:53:13
  */
 @RestController
-@RequestMapping("product/category")
+@RequestMapping("/product/category")
 public class CategoryController {
 
 
@@ -36,7 +32,7 @@ public class CategoryController {
     /**
      * 查询所有，返回形式为树形结构
      */
-    @RequestMapping("/list/tree")
+    @GetMapping("/list/tree")
     //@RequiresPermissions("product:category:list")
     public R list(){
 

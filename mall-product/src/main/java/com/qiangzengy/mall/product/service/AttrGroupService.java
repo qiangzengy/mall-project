@@ -3,7 +3,9 @@ package com.qiangzengy.mall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qiangzengy.common.utils.PageUtils;
 import com.qiangzengy.mall.product.entity.AttrGroupEntity;
+import com.qiangzengy.mall.product.entity.vo.AttrGroupWithAttrsVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,5 +20,7 @@ public interface AttrGroupService extends IService<AttrGroupEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
     PageUtils querycatelogIdPage(Map<String, Object> params,Long catelogId);
+
+    List<AttrGroupWithAttrsVo> getAttrGroupWithAttrsByCatelogId(Long catelogId);
 }
 

@@ -22,15 +22,27 @@ spring:
           filters:
             - RewritePath=/api/(?<segment>/?.*),/$\{segment}
 
+        - id: ware_route
+          uri: lb://mall-ware
+          predicates:
+              #精准的放前面
+            - Path=/api/ware/**
+          filters:
+            - RewritePath=/api/(?<segment>/?.*),/$\{segment}
+
+        - id: member_route
+          uri: lb://mall-member
+          predicates:
+            - Path=/api/member/**
+          filters:
+            - RewritePath=/api/(?<segment>/?.*),/$\{segment}
+
         - id: admin_route
           uri: lb://renren-fast
           predicates:
             - Path=/api/**
           filters:
             - RewritePath=/api/(?<segment>/?.*),/renren-fast/$\{segment}
-            #- RewritePath=/api/(?<segment>/?.*),/renren-fast/$\{segment}
-
-
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848

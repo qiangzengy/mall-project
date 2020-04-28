@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Map;
 
-@FeignClient("mall-coupon-dev")
+@FeignClient("mall-coupon")
 public interface CouponFeignService {
 
     /**
      * 列表
      */
     @RequestMapping("/coupon/coupon/list")
-    public R list(@RequestParam Map<String, Object> params);
+    R list(@RequestParam Map<String, Object> params);
 
 }
