@@ -35,6 +35,12 @@ public class AttrController {
     @Autowired
     private ProductAttrValueService productAttrValueService;
 
+    /**
+     * 获取spu规格
+     * /product/attr/base/listforspu/{spuId}
+     * @param spuId
+     * @return
+     */
     @GetMapping("/base/listforspu/{spuId}")
     public R baseAttrlistforspu(@PathVariable("spuId") Long spuId){
 
@@ -42,7 +48,6 @@ public class AttrController {
 
         return R.ok().put("data",entities);
     }
-
 
 
     @GetMapping("/{attrType}/list/{catelogId}")
@@ -108,6 +113,22 @@ public class AttrController {
     //@RequiresPermissions("product:attr:delete")
     public R delete(@RequestBody Long[] attrIds){
 		attrService.removeByIds(Arrays.asList(attrIds));
+
+        return R.ok();
+    }
+
+    /**
+     * 修改商品规格
+     * /product/attr/update/{spuId}
+     * @param spuId
+     * @param entities
+     * @return
+     */
+    @PostMapping("/update/{spuId}")
+    public R updateSpuAttr(@PathVariable("spuId") Long spuId,
+                           @RequestBody List<ProductAttrValueEntity> entities){
+
+        productAttrValueService.updateSpuAttr(spuId,entities);
 
         return R.ok();
     }

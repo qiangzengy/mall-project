@@ -32,7 +32,8 @@ public class SpuInfoController {
     private SpuInfoService spuInfoService;
 
     /**
-     * 列表
+     * sku检索
+     * /product/skuinfo/list
      */
     @RequestMapping("/list")
     //@RequiresPermissions("product:spuinfo:list")
