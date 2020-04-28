@@ -55,11 +55,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  *  1）、编写异常处理类，使用@ControllerAdvice。
  *  2）、使用@ExceptionHandler标注方法可以处理的异常。
  */
-
+@EnableSwagger2
 @EnableDiscoveryClient
 @SpringBootApplication
-@MapperScan("com.qiangzengy.mall.product.dao")
-@EnableSwagger2
 @EnableFeignClients(basePackages = "com.qiangzengy.mall.product.feign")
 public class MallProductApplication {
 
