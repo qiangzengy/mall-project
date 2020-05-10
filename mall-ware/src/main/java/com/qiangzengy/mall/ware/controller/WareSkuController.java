@@ -1,20 +1,19 @@
 package com.qiangzengy.mall.ware.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import com.qiangzengy.mall.ware.entity.vo.SkuHasStockVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.qiangzengy.mall.ware.entity.WareSkuEntity;
 import com.qiangzengy.mall.ware.service.WareSkuService;
 import com.qiangzengy.common.utils.PageUtils;
 import com.qiangzengy.common.utils.R;
 
+import javax.security.auth.message.callback.SecretKeyCallback;
 
 
 /**
@@ -84,6 +83,18 @@ public class WareSkuController {
 		wareSkuService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
+    }
+
+    /**
+     * 查询是否有库存
+     */
+    @PostMapping("/hasStock")
+    public R<List<SkuHasStockVo>> getSkuHasStock(@RequestBody List<Long> skuIds){
+       List<SkuHasStockVo> stockVos= wareSkuService.getSkuHasStock(skuIds);
+       R r=new R();
+       r.setData(stockVos);
+       return r;
+        //return R.ok().put("data",stockVos);
     }
 
 }
