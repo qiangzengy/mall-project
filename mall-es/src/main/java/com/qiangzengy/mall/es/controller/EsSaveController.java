@@ -29,7 +29,7 @@ public class EsSaveController {
             log.error("商品上架错误",e);
             return R.error(ExceptionCode.PRODUCT_UP_EXCEPTION.getCode(),ExceptionCode.PRODUCT_UP_EXCEPTION.getMsg());
         }
-        if(b){
+        if(!b){
             return R.ok();
         }else {
             return R.error(ExceptionCode.PRODUCT_UP_EXCEPTION.getCode(),ExceptionCode.PRODUCT_UP_EXCEPTION.getMsg());

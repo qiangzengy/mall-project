@@ -1,6 +1,8 @@
 package com.qiangzengy.common.utils;
 
-import javax.xml.crypto.Data;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,17 +13,19 @@ import java.util.Map;
  * @email
  * @date 2016年10月27日 下午9:59:27
  */
-public class R<T> extends HashMap<String, Object> {
+public class R extends HashMap<String, Object> {
 	private static final long serialVersionUID = 1L;
 
-	private T data;
+	public <T> T getData(TypeReference<T> typeReference){
+		 Object data=get("data");
+		 T t=JSON.parseObject(JSON.toJSONString(data),typeReference);
+		 return t;
 
-	public T getData() {
-		return data;
 	}
 
-	public void setData(T data) {
-		this.data = data;
+	public R setData(Object object){
+		put("data",object);
+		return this;
 	}
 
 	public R() {

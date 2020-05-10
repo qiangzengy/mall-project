@@ -1,5 +1,6 @@
 package com.qiangzengy.mall.product.service.impl;
 
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.qiangzengy.common.enums.StatusEnum;
 import com.qiangzengy.common.to.SkuReductionTo;
@@ -285,9 +286,11 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         try {
 
             //发送远程调用库存服务，查询是否有库存 （asStock 是否有库存）
-            R<List<SkuHasStockVo>> hasStock=wareFeignService.getSkuHasStock(skuIdList);
-            List<SkuHasStockVo> hasStockVoList=hasStock.getData();
-            map=hasStockVoList.stream().collect(Collectors.toMap(SkuHasStockVo::getSkuId,item -> item.getHasStock()));
+            R hasStock=wareFeignService.getSkuHasStock(skuIdList);
+            //List<SkuHasStockVo> hasStockVoList=hasStock.getData();
+            TypeReference<List<SkuHasStockVo>> typeReference = new TypeReference<List<SkuHasStockVo>>() {
+            };
+            map=hasStock.getData(typeReference).stream().collect(Collectors.toMap(SkuHasStockVo::getSkuId, item -> item.getHasStock()));
 
         }catch (Exception e){
             log.error("调用库存服务失败:原因{}",e);
