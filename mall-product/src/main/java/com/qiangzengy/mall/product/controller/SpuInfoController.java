@@ -12,8 +12,6 @@ import com.qiangzengy.mall.product.service.SpuInfoService;
 import com.qiangzengy.common.utils.PageUtils;
 import com.qiangzengy.common.utils.R;
 
-
-
 /**
  * spu信息
  *
