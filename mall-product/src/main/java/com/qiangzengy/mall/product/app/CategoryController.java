@@ -1,15 +1,13 @@
-package com.qiangzengy.mall.product.controller;
+package com.qiangzengy.mall.product.app;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.qiangzengy.mall.product.entity.CategoryEntity;
 import com.qiangzengy.mall.product.service.CategoryService;
-import com.qiangzengy.common.utils.PageUtils;
 import com.qiangzengy.common.utils.R;
 
 

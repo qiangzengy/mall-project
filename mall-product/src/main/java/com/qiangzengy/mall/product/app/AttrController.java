@@ -1,11 +1,10 @@
-package com.qiangzengy.mall.product.controller;
+package com.qiangzengy.mall.product.app;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import com.qiangzengy.mall.product.entity.ProductAttrValueEntity;
-import com.qiangzengy.mall.product.entity.vo.AttrGroupRelationVo;
 import com.qiangzengy.mall.product.entity.vo.AttrVo;
 import com.qiangzengy.mall.product.service.ProductAttrValueService;
 import org.springframework.beans.factory.annotation.Autowired;

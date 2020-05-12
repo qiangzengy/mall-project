@@ -1,4 +1,4 @@
-package com.qiangzengy.mall.product.controller;
+package com.qiangzengy.mall.product.app;
 
 import java.util.Arrays;
 import java.util.Map;

@@ -1,11 +1,10 @@
-package com.qiangzengy.mall.product.controller;
+package com.qiangzengy.mall.product.app;
 
 import java.util.Arrays;
 import java.util.Map;
 
 import com.qiangzengy.common.valid.AddGroup;
 import com.qiangzengy.common.valid.UpdateGroup;
-import io.swagger.annotations.ApiModelProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +13,6 @@ import com.qiangzengy.mall.product.entity.BrandEntity;
 import com.qiangzengy.mall.product.service.BrandService;
 import com.qiangzengy.common.utils.PageUtils;
 import com.qiangzengy.common.utils.R;
-
-import javax.validation.Valid;
 
 
 /**
