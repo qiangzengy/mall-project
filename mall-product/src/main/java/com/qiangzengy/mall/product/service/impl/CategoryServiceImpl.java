@@ -190,39 +190,63 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
          *  2。分布式锁
          */
 
+        //本地锁，只要是同一把锁，就能锁住，需要这个锁的所有线程
+        //synchronized (this)：springboot所有的组件在容器中都是单例的，这里可以写this
+        synchronized (this){
 
+            //这边需要先看缓存
+            String data= (String) redisTemplate.opsForValue().get("catalogJson");
 
-
-        //优化，一次性查出数据库所有的数据，有所需要的数据，直接从entityList中获取,减少数据库查询次数
-        List<CategoryEntity> entityList= baseMapper.selectList(null);
-
-        //查出所有1级分类
-        List<CategoryEntity> list=getParent_cid(entityList,0L);
-        //封装数据
-        Map<String, List<Catalog2Vo>> parent_cid=list.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
-
-            //每一个一级分类，查找这个一级分类的二级分类
-            List<CategoryEntity>categoryEntities= getParent_cid(entityList,v.getCatId());
-            //封装上面的结果
-            List<Catalog2Vo> catalog2Vos=null;
-            if (categoryEntities != null){
-                catalog2Vos =categoryEntities.stream().map(catalog2 -> {
-                    Catalog2Vo catalog2Vo=new Catalog2Vo(v.getCatId().toString(),null,catalog2.getCatId().toString(),catalog2.getName());
-                    //查找当前二级分类的三级分类，封装成vo
-                    List<CategoryEntity>cata3= getParent_cid(entityList,catalog2.getCatId());
-                    if(cata3 !=null){
-                        List<Catalog2Vo.Catalog3Vo> catalog3Vos=cata3.stream().map(catalog3 -> {
-                            Catalog2Vo.Catalog3Vo catalog3Vo=new Catalog2Vo.Catalog3Vo(catalog2.getCatId().toString(),catalog3.getCatId().toString(),catalog3.getName());
-                            return catalog3Vo;
-                        }).collect(Collectors.toList());
-                        catalog2Vo.setCatalog3List(catalog3Vos);
-                    }
-                    return catalog2Vo;
-                }).collect(Collectors.toList());
+            //缓存不为null
+            if(StringUtils.isNotEmpty(data)){
+                Map<String, List<Catalog2Vo>> result=JSON.parseObject(data,new TypeReference<Map<String, List<Catalog2Vo>>>(){});
+                return result;
             }
-            return catalog2Vos;
-        }));
-        return parent_cid;
+
+            //优化，一次性查出数据库所有的数据，有所需要的数据，直接从entityList中获取,减少数据库查询次数
+            List<CategoryEntity> entityList= baseMapper.selectList(null);
+
+            //查出所有1级分类
+            List<CategoryEntity> list=getParent_cid(entityList,0L);
+            //封装数据
+            Map<String, List<Catalog2Vo>> parent_cid=list.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+
+                //每一个一级分类，查找这个一级分类的二级分类
+                List<CategoryEntity>categoryEntities= getParent_cid(entityList,v.getCatId());
+                //封装上面的结果
+                List<Catalog2Vo> catalog2Vos=null;
+                if (categoryEntities != null){
+                    catalog2Vos =categoryEntities.stream().map(catalog2 -> {
+                        Catalog2Vo catalog2Vo=new Catalog2Vo(v.getCatId().toString(),null,catalog2.getCatId().toString(),catalog2.getName());
+                        //查找当前二级分类的三级分类，封装成vo
+                        List<CategoryEntity>cata3= getParent_cid(entityList,catalog2.getCatId());
+                        if(cata3 !=null){
+                            List<Catalog2Vo.Catalog3Vo> catalog3Vos=cata3.stream().map(catalog3 -> {
+                                Catalog2Vo.Catalog3Vo catalog3Vo=new Catalog2Vo.Catalog3Vo(catalog2.getCatId().toString(),catalog3.getCatId().toString(),catalog3.getName());
+                                return catalog3Vo;
+                            }).collect(Collectors.toList());
+                            catalog2Vo.setCatalog3List(catalog3Vos);
+                        }
+                        return catalog2Vo;
+                    }).collect(Collectors.toList());
+                }
+                return catalog2Vos;
+            }));
+            /**
+             * 需要在锁里将数据写入缓存，如果不再锁里面将数据写入缓存，
+             * 可能数据还没更新到缓存，第二个对象获取锁，在缓存没查到数据，
+             * 又去查数据库了。
+             */
+            String value= JSON.toJSONString(parent_cid);
+            //将数据更新到缓存
+            redisTemplate.opsForValue().set("catalogJson",value);
+
+            return parent_cid;
+
+
+        }
+
+
     }
 
     private List<CategoryEntity> getParent_cid(List<CategoryEntity> list,Long parentCid) {
