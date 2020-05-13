@@ -1,7 +1,12 @@
 package com.qiangzengy.mall.product.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.qiangzengy.common.utils.Query;
 import com.qiangzengy.mall.product.entity.vo.Catalog2Vo;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -20,11 +25,14 @@ import com.qiangzengy.mall.product.service.CategoryService;
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<CategoryEntity> page = this.page(
                 new Query<CategoryEntity>().getPage(params),
-                new QueryWrapper<CategoryEntity>()
+                new QueryWrapper<>()
         );
 
         return new PageUtils(page);
@@ -128,10 +136,64 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return baseMapper.selectList(queryWrapper);
     }
 
+
+    /**
+     *
+     * 注意：这里有个坑需要注意！
+     * （Springboot 2.0以后默认使用lettuce作为操作redis客户端。它使用的是netty进行网络通讯的。
+     * lettuce的bug导致netty堆外内存溢出，如果netty没有指定堆外内存，默认使用项目启动是配置的内存。
+     * 可以通过-Dio.netty.maxDirectMemory进行设置
+     *
+     * 解决方案：不能使用-Dio.netty.maxDirectMemory只去调大堆外内存
+     * 1。升级lettuce客户端
+     * 2。使用Jedis客户端
+     *
+     * 先查缓存，缓存没有在查数据库，并将数据更新到缓存
+     * @return
+     */
     @Override
     public Map<String, List<Catalog2Vo>> getCatalogJson() {
 
-        //优化，一次性查出数据库所有的数据，有所需要的数据，直接从entityList中获取。
+        /**
+         * 1。空结果缓存，解决缓存穿透的问题
+         * 2。设置过期时间加随机值，解决缓存雪崩问题
+         * 3。加锁：解决缓存击穿问题
+         */
+
+        //查询缓存数据
+        String data= (String) redisTemplate.opsForValue().get("catalogJson");
+        if (StringUtils.isEmpty(data)){
+            //从数据库查询数据
+            Map<String, List<Catalog2Vo>> stringListMap= getCatalogJsonFromDBDb();
+            //将数据转换成json
+            String value= JSON.toJSONString(stringListMap);
+            //将数据更新到缓存
+            redisTemplate.opsForValue().set("catalogJson",value);
+            return stringListMap;
+        }
+
+        Map<String, List<Catalog2Vo>> result=JSON.parseObject(data,new TypeReference<Map<String, List<Catalog2Vo>>>(){});
+        return result;
+
+    }
+
+
+    /**
+     * 从数据库中查询数据
+     * @return
+     */
+    public Map<String, List<Catalog2Vo>> getCatalogJsonFromDBDb() {
+
+        /**
+         *  加锁解决缓存击穿的问题：
+         *  1。本地锁，锁住当前进程，如果该服务部署在6台机器上，就需要每个机器一个锁。
+         *  2。分布式锁
+         */
+
+
+
+
+        //优化，一次性查出数据库所有的数据，有所需要的数据，直接从entityList中获取,减少数据库查询次数
         List<CategoryEntity> entityList= baseMapper.selectList(null);
 
         //查出所有1级分类
