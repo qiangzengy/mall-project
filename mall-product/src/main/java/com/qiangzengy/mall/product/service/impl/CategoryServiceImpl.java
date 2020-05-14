@@ -4,8 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.qiangzengy.common.utils.Query;
 import com.qiangzengy.mall.product.entity.vo.Catalog2Vo;
+import com.qiangzengy.mall.product.service.CategoryBrandRelationService;
 import org.apache.commons.lang.StringUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -22,13 +28,20 @@ import com.qiangzengy.common.utils.PageUtils;
 import com.qiangzengy.mall.product.dao.CategoryDao;
 import com.qiangzengy.mall.product.entity.CategoryEntity;
 import com.qiangzengy.mall.product.service.CategoryService;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
 
     @Autowired
+    CategoryBrandRelationService categoryBrandRelationService;
+
+    @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -131,6 +144,48 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
 
+    /**
+     * 级联更新所有关联的数据
+     * @param category
+     * CacheEvict（）：缓存失效
+     */
+    /*@Caching(evict = {
+            @CacheEvict(value = {"category"},key = "'getLevel1Category'"),
+            @CacheEvict(value = {"category"},key = "'getCatalogJsonFromDBDb'")
+    })*/
+    @CacheEvict(value = {"category"},allEntries = true)//指定删除某个分区的所有数据
+    @Transactional
+    @Override
+    public void updateCascade(CategoryEntity category) {
+        this.updateById(category);
+        categoryBrandRelationService.updateCategory(category.getCatId(),category.getName());
+    }
+
+
+    /**
+     * @Cacheable注解：代表当前方法的结果需要缓存，如果缓存有，方法不调用。
+     * 如果缓存没有，会调用方法，最后将方法数据放入缓存。
+     * 每一个需要缓存的数据，需要指定名字(缓存分区，可以按照业务类型分)
+     * 自定义：
+     * 1。指定生成缓存的key,可以使用方法名作为key（"#root.method.name"）
+     * 2。指定缓存的过期时间
+     * 3。保存数据格式为Json，自定义RedisCacheConfiguration即可
+     *
+     * Spring-Cache不足
+     * 1)。读模式：
+     * 缓存穿查询一个null数据。解决：缓存空数据;cache-null-values=true
+     * 缓存击穿：大量幷发进来同时查询一个正好过期的数据。解决：加锁；？默认是无加锁的。
+     * 缓存雪崩:大量的key同时过期。解决：加随机时间*加上过期时间。： spring.cache.redis.time-to-live
+     * 2).写模式：（缓存与数据库一致）
+     * 、读写加锁。
+     * 、引入Canal，感知到mysql的更新去更新数据库
+     * 、读多写多，直接去数据库查询就行
+     *
+     * 原理：CacheManger(RedisCacheManger)->Cache(RedisCache)-Cache负责缓存的读写
+     */
+
+
+    @Cacheable(value = {"category"},key = "#root.method.name")
     @Override
     public List<CategoryEntity> getLevel1Category() {
         QueryWrapper queryWrapper=new QueryWrapper();
@@ -210,6 +265,22 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
 
     /**
+     * 分布式锁redission的实现
+     * @return
+     */
+    public Map<String, List<Catalog2Vo>> getCatalogJsonFromDBDbWithRedissionLock() {
+
+        //注意：锁的名字->锁的粒度，越细越快
+        RLock rLock = redissonClient.getLock("lock");
+        rLock.lock();
+
+
+        return null;
+
+        }
+
+
+    /**
      * 分布式锁的实现
      * @return
      */
@@ -220,6 +291,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
          *  1。本地锁，锁住当前进程，如果该服务部署在6台机器上，就需要每个机器一个锁。
          *  2。分布式锁
          */
+
+
 
         String value=UUID.randomUUID().toString();
         //分布式锁，占分布式锁，去redis占坑
@@ -332,6 +405,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * 从数据库中查询数据
      * @return
      */
+    @Override
+    @Cacheable(value = {"category"},key = "#root.method.name")
     public Map<String, List<Catalog2Vo>> getCatalogJsonFromDBDb() {
 
             //优化，一次性查出数据库所有的数据，有所需要的数据，直接从entityList中获取,减少数据库查询次数

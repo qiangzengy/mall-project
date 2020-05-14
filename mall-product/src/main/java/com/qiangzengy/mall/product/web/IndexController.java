@@ -38,7 +38,7 @@ public class IndexController {
     @GetMapping("/index/json/catalog.json")
     public Map<String,List<Catalog2Vo>> getCatalogJson(){
 
-        Map<String,List<Catalog2Vo>> catelogMap=categoryService.getCatalogJson();
+        Map<String,List<Catalog2Vo>> catelogMap=categoryService.getCatalogJsonFromDBDb();
         return catelogMap;
 
     }
