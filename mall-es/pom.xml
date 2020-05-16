@@ -25,6 +25,11 @@
             <artifactId>mall-common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <!--模版引擎 thymeleaf -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
         <!-- es -->
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
