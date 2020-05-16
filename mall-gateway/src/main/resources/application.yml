@@ -47,7 +47,12 @@ spring:
         - id: mall_host_route
           uri: lb://mall-product
           predicates:
-            - Host=**.gulimall.com
+            - Host=gulimall.com
+
+        - id: mall_es_route
+          uri: lb://mall-es
+          predicates:
+            - Host=search.gulimall.com
 
     nacos:
       discovery:
