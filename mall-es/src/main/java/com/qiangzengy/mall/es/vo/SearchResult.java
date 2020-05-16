@@ -1,7 +1,6 @@
 package com.qiangzengy.mall.es.vo;
 
 import com.qiangzengy.common.to.es.SkuEsModel;
-import io.swagger.models.auth.In;
 import lombok.Data;
 
 import java.util.List;
