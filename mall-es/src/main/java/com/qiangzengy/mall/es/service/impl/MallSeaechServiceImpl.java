@@ -137,8 +137,6 @@ public class MallSeaechServiceImpl implements MallSearchService {
         result.setTotalPages(pageNums);
         //当前页码
         result.setPageNum(searchParam.getPageNum());
-
-
         return null;
     }
 
