@@ -1,6 +1,7 @@
 package com.qiangzengy.mall.es.vo;
 
 import com.qiangzengy.common.to.es.SkuEsModel;
+import io.swagger.models.auth.In;
 import lombok.Data;
 
 import java.util.List;
@@ -15,10 +16,22 @@ public class SearchResult {
     private Integer pageNum;//当前页数
     private Long  total;//总条数
     private Integer totalPages;//总页数
+    private List<Integer>pageNavs;
 
     private List<BrandVo> brandVos;//当前查到的结果，涉及到的所有品牌
     private List<CatalogVo>catalogVos;//涉及到的所有分类
     private List<AttrVo> attrVos;//涉及到的所有属性
+
+    //面包屑导航
+    private List<NavVo>navs;
+
+    @Data
+    public static class NavVo{
+        private String navName;
+        private String navValue;
+        private String link;
+
+    }
 
     @Data
     public static class BrandVo{

@@ -1,10 +1,14 @@
 package com.qiangzengy.mall.es.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.qiangzengy.common.to.es.SkuEsModel;
+import com.qiangzengy.common.utils.R;
 import com.qiangzengy.mall.es.config.ESConfig;
 import com.qiangzengy.mall.es.constant.EsConstant;
+import com.qiangzengy.mall.es.feign.ProductFeignService;
 import com.qiangzengy.mall.es.service.MallSearchService;
+import com.qiangzengy.mall.es.vo.AttrResponseVo;
 import com.qiangzengy.mall.es.vo.SearchParam;
 import com.qiangzengy.mall.es.vo.SearchResult;
 import org.apache.commons.lang.StringUtils;
@@ -31,6 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,6 +46,9 @@ public class MallSeaechServiceImpl implements MallSearchService {
 
     @Autowired
     private RestHighLevelClient restHighLevelClient;
+
+    @Autowired
+    private ProductFeignService productFeignService;
 
     @Override
     public SearchResult search(SearchParam searchParam) {
@@ -137,7 +146,41 @@ public class MallSeaechServiceImpl implements MallSearchService {
         result.setTotalPages(pageNums);
         //当前页码
         result.setPageNum(searchParam.getPageNum());
-        return null;
+
+        List<Integer>pageNavs =new ArrayList<>();
+        for (int i = 0; i < pageNums; i++) {
+            pageNavs.add(i);
+        }
+        result.setPageNavs(pageNavs);
+
+        if (searchParam.getAttrs()!=null&& searchParam.getAttrs().size()>0){
+            List<SearchResult.NavVo> collect = searchParam.getAttrs().stream().map(item -> {
+                SearchResult.NavVo navVo = new SearchResult.NavVo();
+                String[] arry = item.split("_");
+                navVo.setNavValue(arry[1]);
+                R r = productFeignService.attrInfo(Long.parseLong(arry[0]));
+                if (r.getCode() == 0) {
+                    AttrResponseVo rData = r.getData("attr", new TypeReference<AttrResponseVo>() {
+                    });
+                    navVo.setNavName(rData.getAttrName());
+                } else {
+                    navVo.setNavName(" ");
+                }
+                String encode = null;
+                try {
+                    encode = URLEncoder.encode(item, "UTF-8");
+                    encode = encode.replace("+", "%20");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                String replace = searchParam.getQueryUrl().replace("&attrs=" + encode, "");
+                navVo.setLink("http://search.gulimall.com/list.html?" + replace);
+                return navVo;
+            }).collect(Collectors.toList());
+            result.setNavs(collect);
+        }
+
+        return result;
     }
 
     /**

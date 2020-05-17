@@ -16,5 +16,7 @@ public class SearchParam {
     private List<String>attrs; //属性
     private Integer pageNum=1; //分页
 
+    private String queryUrl;
+
 
 }
