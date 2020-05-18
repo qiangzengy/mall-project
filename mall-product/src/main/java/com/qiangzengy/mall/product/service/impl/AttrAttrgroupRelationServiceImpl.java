@@ -1,9 +1,6 @@
 package com.qiangzengy.mall.product.service.impl;
 
 import com.qiangzengy.common.utils.Query;
-import com.qiangzengy.mall.product.entity.AttrEntity;
-import com.qiangzengy.mall.product.entity.AttrGroupEntity;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -16,7 +13,7 @@ import com.qiangzengy.mall.product.entity.AttrAttrgroupRelationEntity;
 import com.qiangzengy.mall.product.service.AttrAttrgroupRelationService;
 
 
-@Service("attrAttrgroupRelationService")
+@Service()
 public class AttrAttrgroupRelationServiceImpl extends ServiceImpl<AttrAttrgroupRelationDao, AttrAttrgroupRelationEntity> implements AttrAttrgroupRelationService {
 
     @Override

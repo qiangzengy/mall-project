@@ -19,7 +19,6 @@
             <result property="attrName" column="attr_name"></result>
             <result property="attrValue" column="attr_value"></result>
         </collection>
-
     </resultMap>
 
     <select id="getAttrGroupWithAttrsBySpuId" resultMap="spuItemAttrGroupVo">

@@ -54,6 +54,11 @@ spring:
           predicates:
             - Host=search.gulimall.com
 
+        - id: mall_auth_route
+          uri: lb://mall-auth
+          predicates:
+            - Host=auth.gulimall.com
+
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
