@@ -13,11 +13,21 @@
         <result property="attrSort" column="attr_sort"/>
     </resultMap>
 
-    <select id="getSpuIdSale" resultType="com.qiangzengy.mall.product.entity.vo.SkuItemSalaVo">
+    <resultMap id="skuItemSalaVo" type="com.qiangzengy.mall.product.entity.vo.SkuItemSalaVo">
+        <result column="attr_id" property="attrId"></result>
+        <result column="attr_name" property="attrName"></result>
+        <collection property="attrValue" ofType="com.qiangzengy.mall.product.entity.vo.AttrValueWithSkuIdVo">
+            <result column="attr_value" property="attrValue"></result>
+            <result column="sku_ids" property="skuIds"></result>
+        </collection>
+    </resultMap>
+
+    <select id="getSpuIdSale" resultMap="skuItemSalaVo">
        SELECT
           ssav.attr_id attr_id,
           ssav.attr_name attr_name,
-       GROUP_CONCAT(DISTINCT ssav.attr_value) attr_value
+          ssav.attr_value attr_value,
+       GROUP_CONCAT(DISTINCT si.sku_id) sku_ids
        FROM pms_sku_info si
        LEFT JOIN pms_sku_sale_attr_value ssav ON ssav.sku_id = si.sku_id
        WHERE si.spu_id = #{spuId}
