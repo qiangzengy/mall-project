@@ -22,5 +22,4 @@ public class ItemController {
         model.addAttribute("item",itemVo);
         return "item";
     }
-
 }
