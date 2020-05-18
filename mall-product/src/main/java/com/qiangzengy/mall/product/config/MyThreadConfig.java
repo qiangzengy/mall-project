@@ -1,6 +1,7 @@
 package com.qiangzengy.mall.product.config;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.Executors;
@@ -11,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class MyThreadConfig {
 
+    @Bean
     public ThreadPoolExecutor threadPool(ThreadPoolConfigProperties properties){
 
         return new ThreadPoolExecutor(
