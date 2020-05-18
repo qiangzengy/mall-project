@@ -138,4 +138,5 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         itemVo.setGroupVos(groupVos);
         return itemVo;
     }
+
 }
