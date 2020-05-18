@@ -15,7 +15,6 @@ import com.qiangzengy.mall.product.feign.CouponFeignService;
 import com.qiangzengy.mall.product.feign.SearchFeignService;
 import com.qiangzengy.mall.product.feign.WareFeignService;
 import com.qiangzengy.mall.product.service.*;
-import com.sun.org.apache.xml.internal.resolver.CatalogEntry;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +79,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<SpuInfoEntity> page = this.page(
                 new Query<SpuInfoEntity>().getPage(params),
-                new QueryWrapper<SpuInfoEntity>()
+                new QueryWrapper<>()
         );
 
         return new PageUtils(page);
@@ -290,7 +289,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             //List<SkuHasStockVo> hasStockVoList=hasStock.getData();
             TypeReference<List<SkuHasStockVo>> typeReference = new TypeReference<List<SkuHasStockVo>>() {
             };
-            map=hasStock.getData(typeReference).stream().collect(Collectors.toMap(SkuHasStockVo::getSkuId, item -> item.getHasStock()));
+
+            //TODO 有点问题
+            map=hasStock.getData("data",typeReference).stream().collect(Collectors.toMap(SkuHasStockVo::getSkuId, item -> item.getHasStock()));
 
         }catch (Exception e){
             log.error("调用库存服务失败:原因{}",e);

@@ -3,6 +3,7 @@ package com.qiangzengy.mall.product.service.impl;
 import com.qiangzengy.common.utils.Query;
 import com.qiangzengy.mall.product.entity.AttrEntity;
 import com.qiangzengy.mall.product.entity.vo.AttrGroupWithAttrsVo;
+import com.qiangzengy.mall.product.entity.vo.SpuItemAttrGroupVo;
 import com.qiangzengy.mall.product.service.AttrService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -90,5 +91,12 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         }).collect(Collectors.toList());
 
         return collect;
+    }
+
+    @Override
+    public List<SpuItemAttrGroupVo> getAttrGroupWithAttrsBySpuId(Long spuId, Long catalogId) {
+        List<SpuItemAttrGroupVo> groupVos=this.baseMapper.getAttrGroupWithAttrsBySpuId(spuId,catalogId);
+
+        return null;
     }
 }
