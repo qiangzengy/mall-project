@@ -9,7 +9,7 @@ spring:
         server-addr: 127.0.0.1:8848
 aliyun:
   oss:
-    access-id: LTAIp7GRUiZia
-    access-key: j67w1pI66O57NEQXU95VMljupf3xtQ
+    access-id: #############
+    access-key: #############
     endpoint: oss-cn-beijing.aliyuncs.com
     bucket: mall-data
