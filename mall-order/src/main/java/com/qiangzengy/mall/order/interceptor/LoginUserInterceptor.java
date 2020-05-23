@@ -8,7 +8,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@Component//加到容器中
+@Component
 public class LoginUserInterceptor implements HandlerInterceptor {
 
     public static ThreadLocal<MemberResVo> loginUser=new ThreadLocal();

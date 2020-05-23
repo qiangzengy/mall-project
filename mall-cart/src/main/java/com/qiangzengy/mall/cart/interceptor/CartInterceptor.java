@@ -5,6 +5,7 @@ import com.qiangzengy.common.constant.CartConstant;
 import com.qiangzengy.common.vo.MemberRespVo;
 import com.qiangzengy.mall.cart.to.UserInfoTo;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -19,6 +20,7 @@ import java.util.UUID;
  * 拦截器作用：
  * 在执行目标方法之前，判断用户登陆状态，并封装传递给controller目标
  */
+@Component
 public class CartInterceptor implements HandlerInterceptor {
 
     //ThreadLocal保存的是UserInfoTo的数据

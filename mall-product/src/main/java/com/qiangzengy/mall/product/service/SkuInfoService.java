@@ -27,5 +27,6 @@ public interface SkuInfoService extends IService<SkuInfoEntity> {
     List<SkuInfoEntity> getSpuId(long spuId);
 
     SkuItemVo item(Long skuId) throws ExecutionException, InterruptedException;
+
 }
 

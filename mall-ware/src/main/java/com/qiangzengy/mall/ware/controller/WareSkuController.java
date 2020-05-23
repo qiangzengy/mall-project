@@ -1,9 +1,11 @@
 package com.qiangzengy.mall.ware.controller;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.qiangzengy.mall.ware.entity.vo.FareVo;
 import com.qiangzengy.mall.ware.entity.vo.SkuHasStockVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -92,6 +94,14 @@ public class WareSkuController {
     public R getSkuHasStock(@RequestBody List<Long> skuIds){
        List<SkuHasStockVo> stockVos= wareSkuService.getSkuHasStock(skuIds);
         return R.ok().setData(stockVos);
+    }
+
+    @GetMapping("/getFare")
+    public R getFare(@RequestParam ("addrId") Long addrId){
+
+        FareVo fareVo=wareSkuService.getFare(addrId);
+        return R.ok().put("fareVo",fareVo);
+
     }
 
 }

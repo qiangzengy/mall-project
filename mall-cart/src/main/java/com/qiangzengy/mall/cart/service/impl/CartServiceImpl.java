@@ -192,4 +192,30 @@ public class CartServiceImpl implements CartService {
         operations.put(skuId.toString(),JSON.toJSONString(cartItem));
 
     }
+
+    @Override
+    public List<CartItem> getCurrentCartItems() {
+        UserInfoTo userInfoTo = CartInterceptor.threadLocal.get();
+        if (userInfoTo==null){
+            return null;
+        }
+
+        String key=CartConstant.CART_PREFIX+userInfoTo.getUserId();
+
+        //所有购物项
+        List<CartItem> cartItems = getCartItems(key);
+
+        //只需要选中的购物项
+        List<CartItem> collect = cartItems.stream().filter(item -> item.getChec())
+                .map(item -> {
+                    //查询商品服务，商品的价格
+                    R r = productFeignService.info(item.getSkuId());
+                    SkuInfoVo skuInfo = r.getData("skuInfo", new TypeReference<SkuInfoVo>() {});
+                    //更新为最新价格
+                    item.setPrice(skuInfo.getPrice());
+                    return item;
+                })
+                .collect(Collectors.toList());
+        return collect;
+    }
 }

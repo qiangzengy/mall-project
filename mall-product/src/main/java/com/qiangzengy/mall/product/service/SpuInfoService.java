@@ -2,6 +2,7 @@ package com.qiangzengy.mall.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.qiangzengy.common.utils.PageUtils;
+import com.qiangzengy.mall.product.entity.SkuInfoEntity;
 import com.qiangzengy.mall.product.entity.SpuInfoEntity;
 import com.qiangzengy.mall.product.entity.vo.SpuSaveVo;
 
@@ -25,5 +26,7 @@ public interface SpuInfoService extends IService<SpuInfoEntity> {
     PageUtils queryPageByCondition(Map<String, Object> params);
 
     void spuUp(Long spuId);
+
+    SpuInfoEntity getSpuInfoBySkuId(Long skuId);
 }
 

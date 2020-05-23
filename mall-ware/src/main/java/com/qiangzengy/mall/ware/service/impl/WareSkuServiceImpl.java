@@ -1,14 +1,20 @@
 package com.qiangzengy.mall.ware.service.impl;
 
+import com.alibaba.fastjson.TypeReference;
 import com.qiangzengy.common.utils.R;
+import com.qiangzengy.mall.ware.entity.vo.FareVo;
+import com.qiangzengy.mall.ware.entity.vo.MemberAddrVo;
 import com.qiangzengy.mall.ware.entity.vo.SkuHasStockVo;
+import com.qiangzengy.mall.ware.feign.MemberFeignService;
 import com.qiangzengy.mall.ware.feign.ProductFeignService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -30,6 +36,9 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 
     @Autowired
     private ProductFeignService productFeignService;
+
+    @Autowired
+    private MemberFeignService memberFeignService;
 
 
     @Override
@@ -97,5 +106,22 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             return stockVo;
         }).collect(Collectors.toList());
         return stockVos;
+    }
+
+
+    @Override
+    public FareVo getFare(Long addrId) {
+        FareVo fareVo=new FareVo();
+        R info = memberFeignService.info(addrId);
+        MemberAddrVo address = info.getData("memberReceiveAddress", new TypeReference<MemberAddrVo>() {
+        });
+        fareVo.setAddrVo(address);
+        if (address!=null){
+            //TODO 需要调用第三方物流接口，待完善
+            //模拟运费
+            Integer num=new Random().nextInt(6) + 5;
+            fareVo.setFare(new BigDecimal(num+""));
+        }
+        return fareVo;
     }
 }
