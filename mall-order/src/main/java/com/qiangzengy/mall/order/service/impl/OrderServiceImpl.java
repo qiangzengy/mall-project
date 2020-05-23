@@ -172,7 +172,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         //获取所有订单项信息
         List<OrderItemEntity> orderItemEntities = buildOrderItems(orderSn);
 
-
         return createTo;
     }
 
