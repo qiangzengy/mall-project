@@ -59,6 +59,16 @@ spring:
           predicates:
             - Host=auth.gulimall.com
 
+        - id: mall_cart_route
+          uri: lb://mall-cart
+          predicates:
+            - Host=cart.gulimall.com
+
+        - id: mall_order_route
+          uri: lb://mall-order
+          predicates:
+            - Host=order.gulimall.com
+
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
