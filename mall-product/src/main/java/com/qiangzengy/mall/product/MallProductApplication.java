@@ -1,5 +1,6 @@
 package com.qiangzengy.mall.product;
 
+import org.redisson.spring.session.config.EnableRedissonHttpSession;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -56,6 +57,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  *  2）、使用@ExceptionHandler标注方法可以处理的异常。
  */
 @EnableSwagger2
+@EnableRedissonHttpSession
 @EnableDiscoveryClient
 @SpringBootApplication
 @EnableFeignClients(basePackages = "com.qiangzengy.mall.product.feign")

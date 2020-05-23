@@ -1,4 +1,4 @@
-package com.qiangzengy.mall.thirdparty.utils;
+package com.qiangzengy.mall.auth.utils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class RandomUtil {
 	private static final DecimalFormat sixdf = new DecimalFormat("000000");
 
 	public static String getFourBitRandom() {
-		return fourdf.format(random.nextInt(10000));
+		return sixdf.format(random.nextInt(10000));
 	}
 
 	public static String getSixBitRandom() {

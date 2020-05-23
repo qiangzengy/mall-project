@@ -1,5 +1,9 @@
 server:
   port: 10000
+#spring session的过期时间
+  servlet:
+    session:
+      timeout: 30m
 spring:
   application:
     name: mall-auth
@@ -9,3 +13,9 @@ spring:
         server-addr: 127.0.0.1:8848
   thymeleaf:
     cache: false
+  redis:
+    host: 192.168.3.42
+    port: 6379
+#spring session
+  session:
+    store-type: redis

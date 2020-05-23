@@ -71,4 +71,8 @@ public class R extends HashMap<String, Object> {
     public Integer getCode() {
 		return (Integer) this.get("code");
     }
+
+	public String getData(TypeReference<String> stringTypeReference) {
+		return (String) this.get("data");
+	}
 }

@@ -7,13 +7,9 @@ import com.aliyuncs.IAcsClient;
 import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
 import com.qiangzengy.common.utils.R;
-import com.qiangzengy.mall.thirdparty.utils.RandomUtil;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 import com.aliyuncs.CommonRequest;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 
 import java.util.HashMap;
@@ -30,10 +26,8 @@ public class SendCodeController {
 
 
     @GetMapping("/send")
-    public R sendMsm(String phone) {
+    public R sendMsm(@RequestParam("phone") String phone,@RequestParam("code") String code) {
 
-        //生成随机值，传递阿里云进行发送
-        String code = RandomUtil.getFourBitRandom();
         Map<String,Object> param = new HashMap<>();
         param.put("code",code);
         //调用service发送短信的方法
@@ -52,12 +46,12 @@ public class SendCodeController {
         //request.setProtocol(ProtocolType.HTTPS);
         request.setMethod(MethodType.POST);
         request.setDomain("dysmsapi.aliyuncs.com");
-        request.setVersion("2020-05-08");
+        request.setVersion("2017-05-25");
         request.setAction("SendSms");
 
         //设置发送相关的参数
         request.putQueryParameter("PhoneNumbers",phone); //手机号
-        request.putQueryParameter("SignName","商城"); //申请阿里云 签名名称
+        request.putQueryParameter("SignName","爱嘉昕"); //申请阿里云 签名名称
         request.putQueryParameter("TemplateCode","SMS_187540589"); //申请阿里云 模板code
         request.putQueryParameter("TemplateParam", JSONObject.toJSONString(param)); //验证码数据，转换json数据传递
 

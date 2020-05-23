@@ -3,12 +3,14 @@ package com.qiangzengy.mall.member.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.qiangzengy.common.enums.ExceptionCode;
+import com.qiangzengy.mall.member.exception.PhoneExistException;
+import com.qiangzengy.mall.member.exception.UserNameExistException;
+import com.qiangzengy.mall.member.vo.MemBerRegistVo;
+import com.qiangzengy.mall.member.vo.MemberLogVo;
+import com.qiangzengy.mall.member.vo.SocialMember;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.qiangzengy.mall.member.entity.MemberEntity;
 import com.qiangzengy.mall.member.service.MemberService;
@@ -29,6 +31,49 @@ import com.qiangzengy.common.utils.R;
 public class MemberController {
     @Autowired
     private MemberService memberService;
+
+
+    @PostMapping("/oauth2/login")
+    public R authlogin(@RequestBody SocialMember member) throws Exception {
+        MemberEntity entity= memberService.login(member);
+        if (entity==null){
+            return R.error(ExceptionCode.LOGINACCT_PASSWORD_INVAILD_EXCEPTION.getCode(),
+                    ExceptionCode.LOGINACCT_PASSWORD_INVAILD_EXCEPTION.getMsg());
+        }
+        return R.ok().put("data",entity);
+    }
+
+    /**
+     * 登陆
+     */
+
+    @PostMapping("/login")
+    public R login(@RequestBody MemberLogVo logVo){
+       MemberEntity entity= memberService.login(logVo);
+       if (entity==null){
+           return R.error(ExceptionCode.LOGINACCT_PASSWORD_INVAILD_EXCEPTION.getCode(),
+                   ExceptionCode.LOGINACCT_PASSWORD_INVAILD_EXCEPTION.getMsg());
+       }
+        return R.ok().put("data",entity);
+    }
+
+    /**
+     * 注册会员
+     */
+    @PostMapping("/regist")
+    public R regist(@RequestBody MemBerRegistVo memBerRegistVo){
+        try {
+            memberService.regist(memBerRegistVo);
+
+        }catch (PhoneExistException e){
+            return R.error(ExceptionCode.MEMBER_PHONE_EXCEPTION.getCode(),ExceptionCode.MEMBER_PHONE_EXCEPTION.getMsg());
+
+        }catch (UserNameExistException e){
+            return R.error(ExceptionCode.MEMBER_NAME_EXCEPTION.getCode(),ExceptionCode.MEMBER_NAME_EXCEPTION.getMsg());
+        }
+        return R.ok();
+
+    }
 
     /**
      * 列表

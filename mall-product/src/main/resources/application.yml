@@ -1,5 +1,8 @@
 server:
   port: 7004
+  servlet:
+    session:
+      timeout: 30m
 spring:
   datasource:
     username: root
@@ -18,6 +21,9 @@ spring:
     cache: false
   redis:
     host: 192.168.3.42
+    port: 6379
+  session:
+    store-type: redis
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   global-config:

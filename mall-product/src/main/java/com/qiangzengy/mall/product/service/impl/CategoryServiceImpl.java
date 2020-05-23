@@ -255,7 +255,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         //本地锁，只要是同一把锁，就能锁住，需要这个锁的所有线程
         //synchronized (this)：springboot所有的组件在容器中都是单例的，这里可以写this
         synchronized (this){
-
             //这边需要先看缓存
             return getDataFromDb();
 
@@ -265,18 +264,25 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     /**
      * 分布式锁redission的实现
+     *
+     * 缓存数据如何和数据库保持一致：1。双写模式 2。失效模式
      * @return
      */
     public Map<String, List<Catalog2Vo>> getCatalogJsonFromDBDbWithRedissionLock() {
 
         //注意：锁的名字->锁的粒度，越细越快
         RLock rLock = redissonClient.getLock("lock");
+        //加锁
         rLock.lock();
-
-
-        return null;
-
+        try {
+            Map<String, List<Catalog2Vo>> data=getDataFromDb();
+            return data;
+        }finally {
+            //解锁
+            rLock.unlock();
         }
+
+    }
 
 
     /**
@@ -335,12 +341,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             /**
              * 此时还可能存在处理时间过长的问题，刚取到原来的值，还没删除key，key过期了，又有新的key产生，
              * 在执行删除key的操作，此时删除的是别人的key，也需要原子操作
-             * 解决方案：1。使用redis脚步删除
+             * 解决方案：1。使用redis脚本删除
              */
 
         }else {
             //加锁失败，需要重试
-
             return getCatalogJsonFromDBDbWithRedisLock();//自旋的方式
 
         }
