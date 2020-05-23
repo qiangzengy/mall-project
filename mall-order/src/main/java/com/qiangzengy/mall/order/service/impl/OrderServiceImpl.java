@@ -154,7 +154,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         if (execute==1){
             //令牌验证成功
             OrderCreateTo order = createOrder();
-
         }
         return respVo;
     }
