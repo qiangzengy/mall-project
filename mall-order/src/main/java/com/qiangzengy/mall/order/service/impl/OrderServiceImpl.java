@@ -3,13 +3,17 @@ package com.qiangzengy.mall.order.service.impl;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.qiangzengy.common.constant.OrderConstant;
+import com.qiangzengy.common.exception.NoStockException;
 import com.qiangzengy.common.utils.R;
+import com.qiangzengy.mall.order.dao.OrderItemDao;
 import com.qiangzengy.mall.order.entity.OrderItemEntity;
+import com.qiangzengy.mall.order.enume.OrderStatusEnum;
 import com.qiangzengy.mall.order.feign.CartFeignService;
 import com.qiangzengy.mall.order.feign.MemberFeignService;
 import com.qiangzengy.mall.order.feign.ProductFeignService;
 import com.qiangzengy.mall.order.feign.WmsFeignService;
 import com.qiangzengy.mall.order.interceptor.LoginUserInterceptor;
+import com.qiangzengy.mall.order.service.OrderItemService;
 import com.qiangzengy.mall.order.to.OrderCreateTo;
 import com.qiangzengy.mall.order.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +21,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -36,10 +38,29 @@ import com.qiangzengy.common.utils.Query;
 import com.qiangzengy.mall.order.dao.OrderDao;
 import com.qiangzengy.mall.order.entity.OrderEntity;
 import com.qiangzengy.mall.order.service.OrderService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
+
+/**
+ * seata AT模式控制分布式事务：（不适合高并发）
+ * )、每一个微服务先必须创建 undo_log
+ * 2)、安装事务协调器seata-server:httpsi//github.com/seata/seata/releases
+ * 3)、整合
+ * 1、导入依赖 spring-cLoud-starter-alibaba-seata seata-all-0.7.1
+ * 2、解压并启动 seata-server;
+ * registry.conf:注册中心配置;修改 registry type=nacos
+ * file.conf
+ * 3、所有想要用到分布式事务的微服务使用 seata DataSourceProxy代理自己的数据源
+ * 4、每个数服务,都必须导入
+ *     registry. conf
+ *     file.conf vgroup_mapping.gulimall-ware-fescar-service-group ="default"
+ * 5,启动测试
+ * 6、给分布式大事务的入口标注 @GlobalTransactional
+ * 7、每一个远程的小事务用    @Transactional
+ */
 
 @Service("orderService")
 public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> implements  OrderService {
@@ -63,6 +84,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     private ProductFeignService productFeignService;
+
+    @Autowired
+    private OrderItemService orderItemService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -136,9 +160,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     }
 
     @Override
+    @Transactional
+    //@GlobalTransactional// seata分布式事务
     public OrderSubmitRespVo submitOrder(OrderSubmitVo orderVo) {
         submitVo.set(orderVo);
         OrderSubmitRespVo respVo=new OrderSubmitRespVo();
+        respVo.setCode(0);
         MemberResVo memberResVo = LoginUserInterceptor.loginUser.get();
         //下单：验证令牌->创建订单->校验价格->锁库存
 
@@ -149,13 +176,62 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
          */
         String script="if redis.call('get', KEYS[1])==ARGV[1]then return redis.call('del', KEYS[1])else return O end";
         String pageToken=orderVo.getOrderToken();
-        Long execute = redisTemplate.execute(new DefaultRedisScript<Long>(script, Long.class),
+        Long execute = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class),
                 Arrays.asList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberResVo.getId()), pageToken);
         if (execute==1){
             //令牌验证成功
             OrderCreateTo order = createOrder();
+            //验价
+            BigDecimal payAmount = order.getOrderEntity().getPayAmount();
+            BigDecimal payPrice = orderVo.getPayPrice();
+            if (Math.abs(payPrice.subtract(payAmount).doubleValue())<0.01){
+                //保存订单
+                saveOrder(order);
+                //库存锁定，只要异常回滚订单数据
+                WareSkuLockVo lockVo=new WareSkuLockVo();
+                lockVo.setOrderSn(order.getOrderEntity().getOrderSn());
+                List<OrderItemVo> collect = order.getItems().stream().map(item -> {
+                    OrderItemVo itemVo = new OrderItemVo();
+                    itemVo.setSkuId(item.getSkuId());
+                    itemVo.setCount(item.getSkuQuantity());
+                    itemVo.setTitle(item.getSkuName());
+                    return itemVo;
+                }).collect(Collectors.toList());
+                lockVo.setItemLocks(collect);
+
+
+                /**
+                 * 1。为了保证高并发，库存服务自己回滚，可以发消息给库存服务
+                 * 2。库存服务本身可以使用自动解锁模式，采用消息队列
+                 */
+
+                R r = wmsFeignService.orderLockStock(lockVo);
+                if (r.getCode()==0){
+                    //锁成功
+                    return respVo;
+                }else {
+                    //锁失败
+                    throw new NoStockException();
+
+                }
+
+            }else {
+                respVo.setCode(2);
+                return respVo;
+            }
         }
+        respVo.setCode(1);
         return respVo;
+    }
+
+    private void saveOrder(OrderCreateTo order) {
+
+        OrderEntity orderEntity = order.getOrderEntity();
+        orderEntity.setModifyTime(new Date());
+        this.save(orderEntity);
+        List<OrderItemEntity> items = order.getItems();
+        orderItemService.saveBatch(items);
+
     }
 
     /**
@@ -167,16 +243,59 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
         String orderSn = IdWorker.getTimeId();
 
-        OrderEntity entity = buildOrder(orderSn);
+        //构建收货的订单数据
+        OrderEntity orderEntity = buildOrder(orderSn);
 
         //获取所有订单项信息
         List<OrderItemEntity> orderItemEntities = buildOrderItems(orderSn);
 
+        //计算价格
+        computePrice(orderEntity,orderItemEntities);
+
+        createTo.setOrderEntity(orderEntity);
+        createTo.setItems(orderItemEntities);
         return createTo;
     }
 
+    private void computePrice(OrderEntity orderEntity, List<OrderItemEntity> orderItemEntities) {
+
+        //订单的价格
+        BigDecimal totalP=new BigDecimal("0");
+        //优惠的金额
+        BigDecimal compu=new BigDecimal("0");
+        BigDecimal integ=new BigDecimal("0");
+        BigDecimal promo=new BigDecimal("0");
+        Integer gigtG=0;
+        Integer gigtI=0;
+
+
+        for (OrderItemEntity orderItemEntity : orderItemEntities) {
+            totalP=totalP.add(orderItemEntity.getSkuPrice());
+            compu=compu.add(orderItemEntity.getCouponAmount());
+            integ=integ.add(orderItemEntity.getIntegrationAmount());
+            promo=promo.add(orderItemEntity.getPromotionAmount());
+            gigtG=gigtG+orderItemEntity.getGiftGrowth();
+            gigtI=gigtI+orderItemEntity.getGiftIntegration();
+
+        }
+        //订单总额
+        orderEntity.setTotalAmount(totalP);
+        //应付总额
+        orderEntity.setPayAmount(totalP.add(orderEntity.getFreightAmount()));
+        //优惠总额
+        orderEntity.setPromotionAmount(promo);
+        orderEntity.setIntegrationAmount(integ);
+        orderEntity.setCouponAmount(compu);
+        orderEntity.setGrowth(gigtG);
+        orderEntity.setIntegration(gigtI);
+        orderEntity.setDeleteStatus(0);
+
+    }
+
     private OrderEntity buildOrder(String orderSn) {
+        MemberResVo memberResVo = LoginUserInterceptor.loginUser.get();
         OrderEntity entity=new OrderEntity();
+        entity.setMemberId(memberResVo.getId() );
         //生成订单号
         entity.setOrderSn(orderSn);
         //获取收货地址信息
@@ -193,6 +312,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         entity.setReceiverPhone(fareVo.getAddrVo().getPhone());
         //获取运费
         entity.setFreightAmount(fareVo.getFare());
+        //订单状态
+        entity.setStatus(OrderStatusEnum.CREATE_NEW.getCode());
+        //自动确收时间
+        entity.setAutoConfirmDay(15);
         return entity;
     }
 
@@ -241,8 +364,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         entity.setSkuAttrsVals(attrs);
         //优惠信息
         //积分信息
-        entity.setGiftGrowth(item.getPrice().intValue());
-        entity.setGiftIntegration(item.getPrice().intValue());
+        entity.setGiftGrowth(item.getPrice().multiply(new BigDecimal(item.getCount().toString())).intValue());
+        entity.setGiftIntegration(item.getPrice().multiply(new BigDecimal(item.getCount().toString())).intValue());
+        //促销价格
+        entity.setPromotionAmount(new BigDecimal("0"));
+        //优惠卷
+         entity.setCouponAmount(new BigDecimal("0"));
+         //积分优惠
+        entity.setIntegrationAmount(new BigDecimal("0"));
+        //实际价格
+        entity.setRealAmount(entity.getSkuPrice().multiply(new BigDecimal(entity.getSkuQuantity().toString()))
+                .subtract(entity.getCouponAmount()).subtract(entity.getIntegrationAmount())
+                .subtract(entity.getPromotionAmount()));
+
 
         return entity;
     }

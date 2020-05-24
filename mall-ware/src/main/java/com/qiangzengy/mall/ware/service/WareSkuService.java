@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.qiangzengy.common.utils.PageUtils;
 import com.qiangzengy.mall.ware.entity.WareSkuEntity;
 import com.qiangzengy.mall.ware.entity.vo.FareVo;
+import com.qiangzengy.mall.ware.entity.vo.LockStockResult;
 import com.qiangzengy.mall.ware.entity.vo.SkuHasStockVo;
+import com.qiangzengy.mall.ware.entity.vo.WareSkuLockVo;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -26,5 +28,7 @@ public interface WareSkuService extends IService<WareSkuEntity> {
     List<SkuHasStockVo> getSkuHasStock(List<Long> skuIds);
 
     FareVo getFare(Long addrId);
+
+    Boolean orderLockStock(WareSkuLockVo lockVo);
 }
 

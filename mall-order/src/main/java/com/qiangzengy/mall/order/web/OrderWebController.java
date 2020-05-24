@@ -33,14 +33,14 @@ public class OrderWebController {
 
 
     @PostMapping("/submitOrder")
-    public String submitOrder(OrderSubmitVo orderVo){
+    public String submitOrder(OrderSubmitVo orderVo,Model model){
         //下单：验证令牌->创建订单->校验价格->锁库存
         //下单成功：去支付页面，选择支付类型
         //下单失败：回到订单确认页重新确认订单信息
 
         OrderSubmitRespVo respVo=orderService.submitOrder(orderVo);
         if (respVo.getCode()==0){
-
+            model.addAttribute("orderSubmitResp",respVo);
             return "pay";
 
         }

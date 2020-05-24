@@ -12,10 +12,6 @@ spring:
         server-addr: 127.0.0.1:8848
   application:
     name: mall-order
-  rabbitmq:
-    host: 192.168.3.42
-    port: 5672
-    virtual-host: /
   thymeleaf:
     cache: false
 mybatis-plus:

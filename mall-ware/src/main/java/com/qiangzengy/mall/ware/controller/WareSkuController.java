@@ -5,8 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.qiangzengy.common.enums.ExceptionCode;
 import com.qiangzengy.mall.ware.entity.vo.FareVo;
+import com.qiangzengy.mall.ware.entity.vo.LockStockResult;
 import com.qiangzengy.mall.ware.entity.vo.SkuHasStockVo;
+import com.qiangzengy.mall.ware.entity.vo.WareSkuLockVo;
+import com.qiangzengy.mall.ware.exception.NoStockException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -102,6 +106,21 @@ public class WareSkuController {
         FareVo fareVo=wareSkuService.getFare(addrId);
         return R.ok().put("fareVo",fareVo);
 
+    }
+
+    /**
+     * 锁库存
+     */
+    @PostMapping("/lock/stock")
+    public R orderLockStock(@RequestBody WareSkuLockVo lockVo){
+
+        try {
+            wareSkuService.orderLockStock(lockVo);
+            return R.ok();
+        }catch (NoStockException e){
+            return R.error(ExceptionCode.NO_STOCK_EXCEPTION.getCode(),ExceptionCode.NO_STOCK_EXCEPTION.getMsg());
+
+        }
     }
 
 }
