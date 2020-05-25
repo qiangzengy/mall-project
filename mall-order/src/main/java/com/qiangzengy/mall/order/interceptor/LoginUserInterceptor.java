@@ -3,6 +3,7 @@ package com.qiangzengy.mall.order.interceptor;
 import com.qiangzengy.common.constant.AuthConstant;
 import com.qiangzengy.mall.order.vo.MemberResVo;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +25,15 @@ public class LoginUserInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+        /**
+         *  路径匹配/order/order/status/**，就放行，无需登陆
+         */
+        String uri=request.getRequestURI();
+        boolean match = new AntPathMatcher().match("/order/order/status/**",uri);
+        if (match){
+            return true;
+        }
 
         /**
          * 判断是否登陆，只有登陆了才可以访问

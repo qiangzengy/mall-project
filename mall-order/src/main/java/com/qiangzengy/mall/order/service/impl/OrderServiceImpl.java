@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.qiangzengy.common.constant.OrderConstant;
 import com.qiangzengy.common.exception.NoStockException;
 import com.qiangzengy.common.utils.R;
-import com.qiangzengy.mall.order.dao.OrderItemDao;
 import com.qiangzengy.mall.order.entity.OrderItemEntity;
 import com.qiangzengy.mall.order.enume.OrderStatusEnum;
 import com.qiangzengy.mall.order.feign.CartFeignService;
@@ -16,6 +15,7 @@ import com.qiangzengy.mall.order.interceptor.LoginUserInterceptor;
 import com.qiangzengy.mall.order.service.OrderItemService;
 import com.qiangzengy.mall.order.to.OrderCreateTo;
 import com.qiangzengy.mall.order.vo.*;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -87,6 +87,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     private OrderItemService orderItemService;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -199,7 +202,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 }).collect(Collectors.toList());
                 lockVo.setItemLocks(collect);
 
-
                 /**
                  * 1。为了保证高并发，库存服务自己回滚，可以发消息给库存服务
                  * 2。库存服务本身可以使用自动解锁模式，采用消息队列
@@ -208,7 +210,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 R r = wmsFeignService.orderLockStock(lockVo);
                 if (r.getCode()==0){
                     //锁成功
+                    //订单创建成功，给MQ发送消息
+                    rabbitTemplate.convertAndSend("order-event-exchange","order.create.order",order.getOrderEntity());
                     return respVo;
+
                 }else {
                     //锁失败
                     throw new NoStockException();
@@ -377,7 +382,44 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 .subtract(entity.getCouponAmount()).subtract(entity.getIntegrationAmount())
                 .subtract(entity.getPromotionAmount()));
 
-
         return entity;
+    }
+
+
+    @Override
+    public Integer getStatusByOrderSn(String orderSn) {
+        OrderEntity entity = baseMapper.selectOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
+        return entity.getStatus();
+    }
+
+
+    /**
+     * 过期订单的关闭
+     * @param entity
+     */
+    @Override
+    public void closeOrder(OrderEntity entity) {
+
+        //1.查询订单的状态,待付款，才可以关闭
+        OrderEntity orderEntity = baseMapper.selectById(entity.getId());
+        if(orderEntity.getStatus()==OrderStatusEnum.CREATE_NEW.getCode()){
+
+            OrderEntity update = new OrderEntity();
+            update.setId(entity.getId());
+            update.setStatus(OrderStatusEnum.CANCLED.getCode());
+            update.setModifyTime(new Date());
+            updateById(update);
+            /**
+             * 此时上面可能存在问题：关闭订单的操作在解锁库存的后面完成，此时就是导致订单关闭，
+             * 库存没有解锁
+             * 解决：在发送一个消息给库存MQ
+             * 流程图：https://www.yuque.com/qiangzeng/giut9f/mmlg79
+             */
+
+            rabbitTemplate.convertAndSend("order-event-exchange","order.release.other",orderEntity);
+
+        }
+
+
     }
 }

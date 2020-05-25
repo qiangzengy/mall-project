@@ -4,11 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.qiangzengy.mall.order.entity.OrderEntity;
 import com.qiangzengy.mall.order.service.OrderService;
@@ -84,6 +80,17 @@ public class OrderController {
 		orderService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
+    }
+
+
+    /**
+     * 根据订单号查询订单
+     */
+    @GetMapping("/status/{orderSn}")
+    public R getStatusByOrderSn(@PathVariable("orderSn") String orderSn){
+        Integer orderStatus= orderService.getStatusByOrderSn(orderSn);
+        return R.ok().put("orderStatus",orderStatus);
+
     }
 
 }
