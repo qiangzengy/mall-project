@@ -1,6 +1,7 @@
 package com.qiangzengy.mall.ware.service.impl;
 
 import com.alibaba.fastjson.TypeReference;
+import com.qiangzengy.common.to.mq.OrderEntityTo;
 import com.qiangzengy.common.to.mq.StockDetailTo;
 import com.qiangzengy.common.to.mq.StockLockTo;
 import com.qiangzengy.common.utils.R;
@@ -12,17 +13,12 @@ import com.qiangzengy.mall.ware.feign.MemberFeignService;
 import com.qiangzengy.mall.ware.feign.OderFeignService;
 import com.qiangzengy.mall.ware.feign.ProductFeignService;
 import com.qiangzengy.mall.ware.service.WareOrderTaskService;
-import com.rabbitmq.client.Channel;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -263,5 +259,26 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             }
         }
         return true;
+    }
+
+
+    @Override
+    @Transactional
+    public void unLockStock(OrderEntityTo orderTo) {
+
+        String orderSn = orderTo.getOrderSn();
+        WareOrderTaskEntity entity=wareOrderTaskService.getTaskByOrderSn(orderSn);
+        Long taskId = entity.getId();
+        List<WareOrderTaskDetailEntity> list = wareOrderTaskDetailService.list(new QueryWrapper<WareOrderTaskDetailEntity>().eq("task_id", taskId).eq("lock_status", 1));
+        for (WareOrderTaskDetailEntity detail : list) {
+            wareSkuDao.unLockStock(detail.getSkuId(),detail.getWareId(),detail.getSkuNum());
+            //更新库存工作单详情的状态
+            WareOrderTaskDetailEntity dentity = wareOrderTaskDetailService.getById(detailId);
+            dentity.setId(detail.getId());
+            dentity.setLock_status(2);
+            wareOrderTaskDetailService.updateById(dentity);
+        }
+
+
     }
 }

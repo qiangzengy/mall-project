@@ -4,6 +4,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.qiangzengy.common.constant.OrderConstant;
 import com.qiangzengy.common.exception.NoStockException;
+import com.qiangzengy.common.to.mq.OrderEntityTo;
 import com.qiangzengy.common.utils.R;
 import com.qiangzengy.mall.order.entity.OrderItemEntity;
 import com.qiangzengy.mall.order.enume.OrderStatusEnum;
@@ -16,6 +17,7 @@ import com.qiangzengy.mall.order.service.OrderItemService;
 import com.qiangzengy.mall.order.to.OrderCreateTo;
 import com.qiangzengy.mall.order.vo.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -416,10 +418,24 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
              * 流程图：https://www.yuque.com/qiangzeng/giut9f/mmlg79
              */
 
-            rabbitTemplate.convertAndSend("order-event-exchange","order.release.other",orderEntity);
+            OrderEntityTo orderTo=new OrderEntityTo();
+            BeanUtils.copyProperties(orderEntity,orderTo);
+
+            /**
+             * 保证消息100%发出去
+             * 1。网络异常的解决：
+             * 没一个消息可以做好日志记录，可以在数据库创建一个MQ消息表，
+             * 定时扫描数据库，将失败的消息重发一遍
+             * 2。消息抵达Broker, Broker要将消息写入磁盘(持久化)才算成功。此时
+             * Broker尚未持久化完成,宕机。
+             * i： publisher也必须加入确认回调机制,确认成功的消息,修改数据库消息状态
+             * 3。消费者收到消息,但没来得及消费然后宕机
+             * i：定开启手动ACK,消费成功才移除,失败或者没来得及处理就noACk并重新入队
+             *
+             *
+             */
+            rabbitTemplate.convertAndSend("order-event-exchange","order.release.other",orderTo);
 
         }
-
-
     }
 }
