@@ -1,7 +1,6 @@
 package com.qiangzengy.mall.product.service.impl;
 
 import com.alibaba.fastjson.TypeReference;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.qiangzengy.common.enums.StatusEnum;
 import com.qiangzengy.common.to.SkuReductionTo;
 import com.qiangzengy.common.to.SpuBoundTo;
@@ -94,6 +93,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     @Override
     @Transactional
     public void saveSpuInfo(SpuSaveVo vo) {
+
         //1、保存spu基本信息 pms_spu_info
         SpuInfoEntity infoEntity = new SpuInfoEntity();
         BeanUtils.copyProperties(vo, infoEntity);
@@ -108,11 +108,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         descEntity.setDecript(String.join(",", decript));
         spuInfoDescService.saveSpuInfoDesc(descEntity);
 
-
         //3、保存spu的图片集 pms_spu_images
         List<String> images = vo.getImages();
         imagesService.saveImages(infoEntity.getId(), images);
-
 
         //4、保存spu的规格参数;pms_product_attr_value
         List<BaseAttrs> baseAttrs = vo.getBaseAttrs();
@@ -124,7 +122,6 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             valueEntity.setAttrValue(attr.getAttrValues());
             valueEntity.setQuickShow(attr.getShowDesc());
             valueEntity.setSpuId(infoEntity.getId());
-
             return valueEntity;
         }).collect(Collectors.toList());
         attrValueService.saveProductAttr(collect);
@@ -215,7 +212,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
         String key = (String) params.get("key");
         if(!StringUtils.isEmpty(key)){
-            wrapper.and((w)-> w.eq("id",key).or().like("spu_name",key));
+            wrapper.and(w-> w.eq("id",key).or().like("spu_name",key));
 
         }
         // status=1 and (id=1 or spu_name like xxx)
@@ -279,20 +276,16 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
         //查询所有的skuId
         List<Long> skuIdList=skuInfos.stream().map(SkuInfoEntity::getSkuId).collect(Collectors.toList());
-
         //此处需要注意，可能会由于网络的原因，导致调用远程服务失败，可以try一下
         Map<Long,Boolean>map=null;
         try {
-
             //发送远程调用库存服务，查询是否有库存 （asStock 是否有库存）
             R hasStock=wareFeignService.getSkuHasStock(skuIdList);
             //List<SkuHasStockVo> hasStockVoList=hasStock.getData();
             TypeReference<List<SkuHasStockVo>> typeReference = new TypeReference<List<SkuHasStockVo>>() {
             };
-
             //TODO 有点问题
             map=hasStock.getData("data",typeReference).stream().collect(Collectors.toMap(SkuHasStockVo::getSkuId, item -> item.getHasStock()));
-
         }catch (Exception e){
             log.error("调用库存服务失败:原因{}",e);
         }
@@ -321,7 +314,6 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             CategoryEntity categoryEntity = categoryService.getById(sku.getCatalogId());
             esModel.setCatalogName(categoryEntity.getName());
             esModel.setAttrs(attrsList);
-
             return esModel;
         }).collect(Collectors.toList());
 

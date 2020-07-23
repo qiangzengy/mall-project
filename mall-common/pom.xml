@@ -43,7 +43,7 @@
             <version>9.3.7.v20160115</version>
         </dependency>
 
-        <!--        mybatis-plus-->
+        <!-- mybatis-plus -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
@@ -97,30 +97,30 @@
              <scope>provided</scope>
          </dependency>
 
-        <!--        服务注册/发现-->
+        <!-- 服务注册/发现 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
 
+        <!-- seata分布式事务 -->
         <!--<dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
         </dependency>-->
 
-        <!--        配置中心来做配置管理-->
+        <!-- 配置中心来做配置管理 -->
          <dependency>
              <groupId>com.alibaba.cloud</groupId>
              <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
          </dependency>
 
-        <!--         编写一个自定义的校验注解-->
+        <!-- 编写一个自定义的校验注解 -->
          <dependency>
              <groupId>javax.validation</groupId>
              <artifactId>validation-api</artifactId>
              <version>2.0.1.Final</version>
          </dependency>
-
     </dependencies>
 
      <dependencyManagement>
@@ -134,6 +134,5 @@
              </dependency>
          </dependencies>
      </dependencyManagement>
-
 
 </project>

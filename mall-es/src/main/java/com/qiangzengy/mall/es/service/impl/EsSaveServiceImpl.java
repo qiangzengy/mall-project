@@ -14,6 +14,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 @Service
 public class EsSaveServiceImpl implements EsSaveService {
 
-    @Autowired
+    @Resource
     private RestHighLevelClient highLevelClient;
 
     //将数据保存到es中
@@ -38,10 +39,8 @@ public class EsSaveServiceImpl implements EsSaveService {
             String jsonString = JSON.toJSONString(skuEsModel);
             indexResponse.source(jsonString, XContentType.JSON);
             bulkRequest.add(indexResponse);
-
         }
         BulkResponse bulk = highLevelClient.bulk(bulkRequest, ESConfig.COMMON_OPTIONS);
-
         //TODO 批量错误处理，待完善
         boolean b = bulk.hasFailures();
         List<String> collect = Arrays.stream(bulk.getItems()).map(item -> item.getId()).collect(Collectors.toList());

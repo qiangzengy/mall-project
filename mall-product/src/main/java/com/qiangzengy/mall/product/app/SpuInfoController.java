@@ -3,7 +3,6 @@ package com.qiangzengy.mall.product.app;
 import java.util.Arrays;
 import java.util.Map;
 
-import com.qiangzengy.mall.product.entity.SkuInfoEntity;
 import com.qiangzengy.mall.product.entity.vo.SpuSaveVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +22,7 @@ import com.qiangzengy.common.utils.R;
 @RestController
 @RequestMapping("product/spuinfo")
 public class SpuInfoController {
+
     @Autowired
     private SpuInfoService spuInfoService;
 
@@ -35,7 +35,6 @@ public class SpuInfoController {
     public R list(@RequestParam Map<String, Object> params){
         //PageUtils page = spuInfoService.queryPage(params);
         PageUtils page = spuInfoService.queryPageByCondition(params);
-
         return R.ok().put("page", page);
     }
 
@@ -47,7 +46,6 @@ public class SpuInfoController {
     //@RequiresPermissions("product:spuinfo:info")
     public R info(@PathVariable("id") Long id){
 		SpuInfoEntity spuInfo = spuInfoService.getById(id);
-
         return R.ok().put("spuInfo", spuInfo);
     }
 

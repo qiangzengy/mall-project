@@ -112,7 +112,6 @@ public class CartServiceImpl implements CartService {
             cart.setItems(cartItem);
             //清除临时购物车的数据
             clearCart(empkey);
-
         }else {
             //没登陆
             String key=CartConstant.CART_PREFIX+userInfoTo.getUserKey();
@@ -160,7 +159,7 @@ public class CartServiceImpl implements CartService {
     private BoundHashOperations<String, Object, Object> getCartOps() {
         //得到用户信息
         UserInfoTo userInfoTo = CartInterceptor.threadLocal.get();
-        String cartKey ="";
+        String cartKey;
         if(userInfoTo.getUserId()!=null){
             //登陆，redis的key
             cartKey= CartConstant.CART_PREFIX+userInfoTo.getUserId();

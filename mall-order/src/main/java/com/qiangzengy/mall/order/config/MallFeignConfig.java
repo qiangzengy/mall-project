@@ -19,17 +19,14 @@ public class MallFeignConfig {
     @Bean
     public RequestInterceptor requestInterceptor(){
 
-        return new RequestInterceptor() {
-            @Override
-            public void apply(RequestTemplate requestTemplate) {
-                //RequestContextHolder可以拿到刚进来的请求数据
-                ServletRequestAttributes attributes= (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-                HttpServletRequest request = attributes.getRequest();
-                if(request!=null){
-                    //同步请求头数据
-                    requestTemplate.header("Cookie",request.getHeader("Cookie"));
+        return requestTemplate -> {
+            //RequestContextHolder可以拿到刚进来的请求数据
+            ServletRequestAttributes attributes= (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            HttpServletRequest request = attributes.getRequest();
+            if(request!=null){
+                //同步请求头数据
+                requestTemplate.header("Cookie",request.getHeader("Cookie"));
 
-                }
             }
         };
     }

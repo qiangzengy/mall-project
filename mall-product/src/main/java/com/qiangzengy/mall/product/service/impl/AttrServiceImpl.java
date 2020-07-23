@@ -33,24 +33,26 @@ import com.qiangzengy.mall.product.entity.AttrEntity;
 import com.qiangzengy.mall.product.service.AttrService;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+
 
 @Service("attrService")
 public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements AttrService {
 
-    @Autowired
+    @Resource
     private AttrAttrgroupRelationDao relationDao;
 
-    @Autowired
+    @Resource
     private AttrGroupDao attrGroupDao;
 
-    @Autowired
+    @Resource
     private CategoryDao categoryDao;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<AttrEntity> page = this.page(
                 new Query<AttrEntity>().getPage(params),
-                new QueryWrapper<AttrEntity>()
+                new QueryWrapper<>()
         );
 
         return new PageUtils(page);
@@ -155,9 +157,9 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
         List<AttrAttrgroupRelationEntity> entities = relationDao.selectList(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_group_id", attrgroupId));
 
-        List<Long> attrIds = entities.stream().map((attr) -> {
-            return attr.getAttrId();
-        }).collect(Collectors.toList());
+        List<Long> attrIds = entities.stream().map((attr) ->
+             attr.getAttrId()
+        ).collect(Collectors.toList());
 
         if(attrIds == null || attrIds.size() == 0){
             return null;
@@ -187,15 +189,15 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         //2、当前分组只能关联别的分组没有引用的属性
         //2.1)、当前分类下的其他分组
         List<AttrGroupEntity> group = attrGroupDao.selectList(new QueryWrapper<AttrGroupEntity>().eq("catelog_id", catelogId));
-        List<Long> collect = group.stream().map(item -> {
-            return item.getAttrGroupId();
-        }).collect(Collectors.toList());
+        List<Long> collect = group.stream().map(item ->
+            item.getAttrGroupId()
+        ).collect(Collectors.toList());
 
         //2.2)、这些分组关联的属性
         List<AttrAttrgroupRelationEntity> groupId = relationDao.selectList(new QueryWrapper<AttrAttrgroupRelationEntity>().in("attr_group_id", collect));
-        List<Long> attrIds = groupId.stream().map(item -> {
-            return item.getAttrId();
-        }).collect(Collectors.toList());
+        List<Long> attrIds = groupId.stream().map(item ->
+             item.getAttrId()
+        ).collect(Collectors.toList());
 
         //2.3)、从当前分类的所有属性中移除这些属性；
         QueryWrapper<AttrEntity> wrapper = new QueryWrapper<AttrEntity>().eq("catelog_id", catelogId).eq("attr_type",AttrEnum.ATTR_TYPE_BASE.getCode());
@@ -204,9 +206,9 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         }
         String key = (String) params.get("key");
         if(!StringUtils.isEmpty(key)){
-            wrapper.and((w)->{
-                w.eq("attr_id",key).or().like("attr_name",key);
-            });
+            wrapper.and((w)->
+                w.eq("attr_id",key).or().like("attr_name",key)
+            );
         }
         IPage<AttrEntity> page = this.page(new Query<AttrEntity>().getPage(params), wrapper);
 

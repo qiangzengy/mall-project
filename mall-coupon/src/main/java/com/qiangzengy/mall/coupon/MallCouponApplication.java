@@ -4,6 +4,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 
 
 /**
@@ -15,12 +16,13 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  *             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
  *         </dependency>
  * 2）、创建一个bootstrap.properties。
- *      spring.application.name=gulimall-coupon
- *      spring.cloud.nacos.config.server-addr=127.0.0.1:8848
+ *      spring.application.name=gulimall-coupon（当前服务名）
+ *      spring.cloud.nacos.config.server-addr=127.0.0.1:8848（配置中心的地址）
  * 3）、需要给配置中心默认添加一个叫 数据集（Data Id）gulimall-coupon.properties。默认规则，应用名.properties
  * 4）、给 应用名.properties 添加任何配置
  * 5）、动态获取配置。
  *      @RefreshScope：动态获取并刷新配置
+ *      @RefreshScope：作用刷新配置，可以动态的从nacos配置中心里面，读取配置文件的内容
  *      @Value("${配置项的名}")：获取到配置。
  *      如果配置中心和当前应用的配置文件中都配置了相同的项，优先使用配置中心的配置。
  *
@@ -51,8 +53,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * 配置中心有的优先使用配置中心中的，
  *
  *
+ *
+ *
  */
-
+@RefreshScope
 @EnableDiscoveryClient
 @SpringBootApplication
 @MapperScan("com.qiangzengy.mall.coupon.dao")

@@ -11,12 +11,14 @@ import com.qiangzengy.mall.auth.vo.SocialUser;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,6 +41,18 @@ import java.util.Map;
 @RequestMapping("/oauth2/weibo")
 public class OAuth2Controller {
 
+    @Value("${weibo.oauth.client_id}")
+    private String clientId;
+
+    @Value("${weibo.oauth.client_secret}")
+    private String clientSecret;
+
+    @Value("${weibo.oauth.grant_type}")
+    private String grantType;
+
+    @Value("${weibo.oauth.redirect_uri}")
+    private String redirectUri;
+
     @Autowired
     private MemberFeignService memberFeignService;
 
@@ -46,10 +60,10 @@ public class OAuth2Controller {
     public String weibo(@RequestParam("code") String code, HttpSession session) throws Exception {
 
         Map<String, String> map = new HashMap<>();
-        map. put("client_id","2636917288");
-        map. put("client_secret","a263e9284c6c1a74a62adacs11b6e2");
-        map. put("grant_type","authorization_code");
-        map.put("redirect_uri","http://gulimall.com/oauth2/weibo/success");
+        map. put("client_id",clientId);
+        map. put("client_secret",clientSecret);
+        map. put("grant_type",grantType);
+        map.put("redirect_uri",redirectUri);
         map.put("code",code);
                 //根据code换取accessToken
         HttpResponse response = HttpUtils.doPost("api.weibo.com", "/oauth2/access_token", "post",

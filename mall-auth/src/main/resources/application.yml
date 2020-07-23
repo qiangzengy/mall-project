@@ -19,3 +19,10 @@ spring:
 #spring session
   session:
     store-type: redis
+
+weibo:
+  oauth:
+    client_id: 2636917288
+    client_secret: a263e9284c6c1a74a62adacs11b6e2
+    grant_type: authorization_code
+    redirect_uri: http://gulimall.com/oauth2/weibo/success

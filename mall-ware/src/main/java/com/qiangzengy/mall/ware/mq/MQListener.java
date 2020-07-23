@@ -1,6 +1,7 @@
 package com.qiangzengy.mall.ware.mq;
 
 import com.alibaba.fastjson.TypeReference;
+import com.qiangzengy.common.to.mq.OrderEntityTo;
 import com.qiangzengy.common.to.mq.StockDetailTo;
 import com.qiangzengy.common.to.mq.StockLockTo;
 import com.qiangzengy.common.utils.R;
@@ -39,6 +40,31 @@ public class MQListener {
 
         try {
             wareSkuService.unLockStock(to);
+            //手动ack
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        }catch (Exception e){
+            //消息拒绝，重新放回队列里面，继续消费解锁
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        }
+    }
+
+
+    /**
+     * 防止订单服务卡顿，导致订单状态消息一直改不了，库存消息优先到期，
+     * 查订单处于新建状态，导致库存无法解锁
+     * @param orderTo
+     * @param message
+     * @param channel
+     * @throws IOException
+     */
+
+    @RabbitHandler
+    public void handleOrderCloseRelease(OrderEntityTo orderTo, Message message, Channel channel) throws IOException {
+
+        System.out.println("收到解锁的库存消息;");
+
+        try {
+            wareSkuService.unLockStock(orderTo);
             //手动ack
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
         }catch (Exception e){
