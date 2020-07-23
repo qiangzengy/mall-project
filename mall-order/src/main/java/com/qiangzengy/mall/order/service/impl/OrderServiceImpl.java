@@ -215,11 +215,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                     //订单创建成功，给MQ发送消息
                     rabbitTemplate.convertAndSend("order-event-exchange","order.create.order",order.getOrderEntity());
                     return respVo;
-
                 }else {
                     //锁失败
                     throw new NoStockException();
-
                 }
 
             }else {
@@ -238,7 +236,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         this.save(orderEntity);
         List<OrderItemEntity> items = order.getItems();
         orderItemService.saveBatch(items);
-
     }
 
     /**
@@ -424,7 +421,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             /**
              * 保证消息100%发出去
              * 1。网络异常的解决：
-             * 没一个消息可以做好日志记录，可以在数据库创建一个MQ消息表，
+             * 每一个消息可以做好日志记录，可以在数据库创建一个MQ消息表，
              * 定时扫描数据库，将失败的消息重发一遍
              * 2。消息抵达Broker, Broker要将消息写入磁盘(持久化)才算成功。此时
              * Broker尚未持久化完成,宕机。

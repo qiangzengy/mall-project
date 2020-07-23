@@ -40,7 +40,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * (2)后删除可能导致,业务处理成功,但是服务闪断,出现超时,没有删除 token,别
  * 人继续重试,导致业务被执行两边
  * 我们最好设计为先删除 token,如果业务调用失败,就重新获取 token再次请求。
- * oken获取、比较和删除必须是原子性
+ * token获取、比较和删除必须是原子性
  * (1) redisget(token)、 tokenequals、 redis del(token)如果这两个操作不是原子,可能导
  * 致,高并发下,都get到同样的数据,判断都成功,继续业务并发执行
  * (2)可以在 redis使用lua脚本完成这个操作

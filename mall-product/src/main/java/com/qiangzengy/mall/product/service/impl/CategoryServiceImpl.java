@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
 
     @Autowired
-    CategoryBrandRelationService categoryBrandRelationService;
+    private CategoryBrandRelationService categoryBrandRelationService;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -48,13 +48,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                 new Query<CategoryEntity>().getPage(params),
                 new QueryWrapper<>()
         );
-
         return new PageUtils(page);
     }
 
     @Override
     public List<CategoryEntity> treeList() {
-
 
         //1.查询所有分类
         List<CategoryEntity> categoryEntityList=baseMapper.selectList(null);
@@ -63,14 +61,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         List<CategoryEntity> categoryList=categoryEntityList.stream().filter(categoryEntity ->
                 //一级分类，parentCid为0；
                 categoryEntity.getParentCid()==0
-        ).map((category)->{
+        ).map(category->{
             //封装递归方法，找到每个类目的子类目；
             category.setChildren(getChildren(category,categoryEntityList));
             return category;
             //排序，对两个类目进行对比,该类目可能为null，需要判断，如果为null,赋值为0
-            /* (category1,category2)->{
-                   return (category1.getSort()==null?0:category1.getSort())-(category2.getSort()==null?0:category2.getSort());
-                     }*/
+
         }).sorted(
                 Comparator.comparingInt(category -> (category.getSort() == null ? 0 : category.getSort()))
         ).collect(Collectors.toList());
@@ -88,10 +84,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     private List<CategoryEntity>getChildren(CategoryEntity entity,List<CategoryEntity> all){
         //entity的id等于其子类目的父id，即
         List<CategoryEntity>categoriesList = all.stream().filter(categories ->
-             categories.getParentCid()==entity.getCatId()
+                        categories.getParentCid().equals(entity.getCatId())
                 ).map(
                  //该子类目可能还有子类目，需要继续获取子子类目
-                (category) -> {
+                category -> {
                     category.setChildren(getChildren(category,all));
                     return category;
                 }
@@ -104,9 +100,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
 
+    /**
+     * 逻辑删除
+     * @param ids
+     */
     @Override
     public void removeCategory(List<Long> ids) {
-        //TODO
+        //TODO 需要判断是否可以删除
         baseMapper.deleteBatchIds(ids);
     }
 
@@ -115,8 +115,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     public Long[] findCatelogPath(Long catelogId) {
 
         List<Long> path=new ArrayList<>();
-
-        /*
+        /**
          * 由于我们需要这中形式[父，子，孙]，
          * 而findParentPath(catelogId,path)，返回结果为[孙，子，父]
          * 需要做逆序转换
@@ -137,7 +136,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         if(parentId!=0){
             //根据父id，查找父亲的实体
             findParentPath(entity.getParentCid(),path);
-
         }
         return path;
     }
@@ -296,8 +294,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
          *  1。本地锁，锁住当前进程，如果该服务部署在6台机器上，就需要每个机器一个锁。
          *  2。分布式锁
          */
-
-
 
         String value=UUID.randomUUID().toString();
         //分布式锁，占分布式锁，去redis占坑

@@ -20,6 +20,7 @@ spring:
               #精准的放前面
             - Path=/api/product/**
           filters:
+            #路径重写
             - RewritePath=/api/(?<segment>/?.*),/$\{segment}
 
         - id: ware_route
@@ -42,6 +43,7 @@ spring:
           predicates:
             - Path=/api/**
           filters:
+            #路径重写
             - RewritePath=/api/(?<segment>/?.*),/renren-fast/$\{segment}
 
         - id: mall_host_route

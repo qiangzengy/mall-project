@@ -45,7 +45,7 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<CategoryBrandRelationEntity> page = this.page(
                 new Query<CategoryBrandRelationEntity>().getPage(params),
-                new QueryWrapper<CategoryBrandRelationEntity>()
+                new QueryWrapper<>()
         );
 
         return new PageUtils(page);
@@ -55,10 +55,10 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
     @Override
     public void saveDetail(CategoryBrandRelationEntity categoryBrandRelation) {
         Long brandId = categoryBrandRelation.getBrandId();
-        Long catelogId = categoryBrandRelation.getCatelogId();
+        Long catalogId = categoryBrandRelation.getCatelogId();
         //1、查询详细名字
         BrandEntity brandEntity = brandDao.selectById(brandId);
-        CategoryEntity categoryEntity = categoryDao.selectById(catelogId);
+        CategoryEntity categoryEntity = categoryDao.selectById(catalogId);
 
         categoryBrandRelation.setBrandName(brandEntity.getName());
         categoryBrandRelation.setCatelogName(categoryEntity.getName());
@@ -78,8 +78,8 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
 
     @Override
     public List<BrandEntity> getBrandsByCatId(Long catId) {
-        List<CategoryBrandRelationEntity> catelogId = relationDao.selectList(new QueryWrapper<CategoryBrandRelationEntity>().eq("catelog_id", catId));
-        List<BrandEntity> collect = catelogId.stream().map(item -> {
+        List<CategoryBrandRelationEntity> catalogId = relationDao.selectList(new QueryWrapper<CategoryBrandRelationEntity>().eq("catelog_id", catId));
+        List<BrandEntity> collect = catalogId.stream().map(item -> {
             Long brandId = item.getBrandId();
             BrandEntity byId = brandService.getById(brandId);
             return byId;

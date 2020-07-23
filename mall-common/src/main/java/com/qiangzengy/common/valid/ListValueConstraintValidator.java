@@ -2,6 +2,7 @@ package com.qiangzengy.common.valid;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import javax.validation.Valid;
 import java.util.HashSet;
 import java.util.Set;
 

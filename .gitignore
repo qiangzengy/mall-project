@@ -31,8 +31,9 @@ build/
 ### VS Code ###
 .vscode/
 
-
+#忽略，不提交到git
 **/.mvn
 **/mvnw
 **/mvnw.cmd
 **/target/
+**/.gitignore

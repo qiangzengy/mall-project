@@ -25,6 +25,7 @@ import com.qiangzengy.common.utils.R;
 @RestController
 @RequestMapping("product/brand")
 public class BrandController {
+
     @Autowired
     private BrandService brandService;
 
@@ -32,7 +33,6 @@ public class BrandController {
     //@RequiresPermissions("product:brand:list")
     public R list(@RequestParam Map<String, Object> params){
         PageUtils page = brandService.queryPage(params);
-
         return R.ok().put("page", page);
     }
 
@@ -44,7 +44,6 @@ public class BrandController {
     //@RequiresPermissions("product:brand:info")
     public R info(@PathVariable("brandId") Long brandId){
 		BrandEntity brand = brandService.getById(brandId);
-
         return R.ok().put("brand", brand);
     }
 
@@ -67,7 +66,6 @@ public class BrandController {
     public R update(@Validated(UpdateGroup.class) @RequestBody BrandEntity brand){
 		//brandService.updateById(brand);
         brandService.updateDetail(brand);
-
         return R.ok();
     }
 
@@ -78,7 +76,6 @@ public class BrandController {
     //@RequiresPermissions("product:brand:delete")
     public R delete(@RequestBody Long[] brandIds){
 		brandService.removeByIds(Arrays.asList(brandIds));
-
         return R.ok();
     }
 

@@ -13,14 +13,14 @@ import com.qiangzengy.mall.product.entity.AttrAttrgroupRelationEntity;
 import com.qiangzengy.mall.product.service.AttrAttrgroupRelationService;
 
 
-@Service()
+@Service("attrAttrgroupRelationService")
 public class AttrAttrgroupRelationServiceImpl extends ServiceImpl<AttrAttrgroupRelationDao, AttrAttrgroupRelationEntity> implements AttrAttrgroupRelationService {
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<AttrAttrgroupRelationEntity> page = this.page(
                 new Query<AttrAttrgroupRelationEntity>().getPage(params),
-                new QueryWrapper<AttrAttrgroupRelationEntity>()
+                new QueryWrapper<>()
         );
 
         return new PageUtils(page);

@@ -12,7 +12,7 @@ import java.util.Map;
 public interface CouponFeignService {
 
     /**
-     * 列表
+     * 优惠劵列表
      */
     @RequestMapping("/coupon/coupon/list")
     R list(@RequestParam Map<String, Object> params);
