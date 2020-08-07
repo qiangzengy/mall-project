@@ -25,6 +25,7 @@ public class MallCorsConfiguration {
         corsConfiguration.addAllowedHeader("*");
         //允许哪些请求方式
         corsConfiguration.addAllowedMethod("*");
+        //在生产环境上最好指定域名，以免产生跨域安全问题
         //允许哪些请求来源
         corsConfiguration.addAllowedOrigin("*");
         //是否允许携带cookie

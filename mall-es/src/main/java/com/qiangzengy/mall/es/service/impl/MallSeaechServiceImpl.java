@@ -293,7 +293,6 @@ public class MallSeaechServiceImpl implements MallSearchService {
         attr_id_agg.subAggregation(AggregationBuilders.terms("attr_name_agg").field("attrs.attrName").size(1));
         //value
         attr_id_agg.subAggregation(AggregationBuilders.terms("attr_value_agg").field("attrs.attrValue").size(10));
-
         attr_agg.subAggregation(attr_id_agg);
         searchSourceBuilder.aggregation(attr_agg);
        return new SearchRequest(new String[]{EsConstant.PRODUCT_INDEX},searchSourceBuilder);

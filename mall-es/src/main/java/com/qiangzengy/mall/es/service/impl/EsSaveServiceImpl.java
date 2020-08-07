@@ -41,12 +41,9 @@ public class EsSaveServiceImpl implements EsSaveService {
             bulkRequest.add(indexResponse);
         }
         BulkResponse bulk = highLevelClient.bulk(bulkRequest, ESConfig.COMMON_OPTIONS);
-        //TODO 批量错误处理，待完善
-        boolean b = bulk.hasFailures();
+        boolean b = bulk.hasFailures();//如果失败，返回true
         List<String> collect = Arrays.stream(bulk.getItems()).map(item -> item.getId()).collect(Collectors.toList());
-        log.error("商品上架完成 ：{}",collect);
+        log.info("商品上架信：{},上架状态：{}",collect,!b);
         return b;
-
-
     }
 }

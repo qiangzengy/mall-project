@@ -33,15 +33,8 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
         if (!StringUtils.isEmpty(key)) {
             queryWrapper.eq("first_letter", key).or().like("name", key);
         }
-
-        IPage<BrandEntity> page = this.page(
-                new Query<BrandEntity>().getPage(params),
-                queryWrapper
-
-        );
-
+        IPage<BrandEntity> page = this.page(new Query<BrandEntity>().getPage(params),queryWrapper);
         return new PageUtils(page);
-
     }
 
 
@@ -52,7 +45,6 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
         if(!StringUtils.isEmpty(brand.getName())){
             //同步更新其他关联表中的数据
             categoryBrandRelationService.updateBrand(brand.getBrandId(),brand.getName());
-
             //TODO 更新其他关联
         }
     }

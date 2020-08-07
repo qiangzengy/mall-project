@@ -30,6 +30,7 @@ public class R extends HashMap<String, Object> {
 
 	public R() {
 		put("code", 0);
+		put("msg","操作成功");
 	}
 	
 	public static R error() {

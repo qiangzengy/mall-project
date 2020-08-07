@@ -37,8 +37,8 @@ public class MemberController {
     public R authlogin(@RequestBody SocialMember member) throws Exception {
         MemberEntity entity= memberService.login(member);
         if (entity==null){
-            return R.error(ExceptionCode.LOGINACCT_PASSWORD_INVAILD_EXCEPTION.getCode(),
-                    ExceptionCode.LOGINACCT_PASSWORD_INVAILD_EXCEPTION.getMsg());
+            return R.error(ExceptionCode.LOGIN_ACCT_PASSWORD_INVAILD_EXCEPTION.getCode(),
+                    ExceptionCode.LOGIN_ACCT_PASSWORD_INVAILD_EXCEPTION.getMsg());
         }
         return R.ok().put("data",entity);
     }
@@ -51,8 +51,8 @@ public class MemberController {
     public R login(@RequestBody MemberLogVo logVo){
        MemberEntity entity= memberService.login(logVo);
        if (entity==null){
-           return R.error(ExceptionCode.LOGINACCT_PASSWORD_INVAILD_EXCEPTION.getCode(),
-                   ExceptionCode.LOGINACCT_PASSWORD_INVAILD_EXCEPTION.getMsg());
+           return R.error(ExceptionCode.LOGIN_ACCT_PASSWORD_INVAILD_EXCEPTION.getCode(),
+                   ExceptionCode.LOGIN_ACCT_PASSWORD_INVAILD_EXCEPTION.getMsg());
        }
         return R.ok().put("data",entity);
     }

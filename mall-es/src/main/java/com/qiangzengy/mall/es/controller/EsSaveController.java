@@ -26,7 +26,7 @@ public class EsSaveController {
         try {
             b = esSaveService.productStatusUp(skuEsModels);
         }catch (Exception e){
-            log.error("商品上架错误",e);
+            log.error("商品上架失败：{}",e);
             return R.error(ExceptionCode.PRODUCT_UP_EXCEPTION.getCode(),ExceptionCode.PRODUCT_UP_EXCEPTION.getMsg());
         }
         if(!b){

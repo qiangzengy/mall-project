@@ -42,6 +42,13 @@
             <artifactId>jetty-util</artifactId>
             <version>9.3.7.v20160115</version>
         </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+            <version>4.0.4</version>
+        </dependency>
+        <!-- Thanks for using https://jar-download.com -->
+
 
         <!-- mybatis-plus -->
         <dependency>

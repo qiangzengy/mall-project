@@ -94,7 +94,7 @@ public class CartServiceImpl implements CartService {
         if (userInfoTo.getUserId()!=null){
             //登陆
             String key=CartConstant.CART_PREFIX+userInfoTo.getUserId();
-            BoundHashOperations<String, Object, Object>operations=redisTemplate.boundHashOps(key);
+            //BoundHashOperations<String, Object, Object>operations=redisTemplate.boundHashOps(key);
             //如果临时购物车还有数据，需要合并
             //1。判断临时购物车是否有数据
             String empkey=CartConstant.CART_PREFIX+userInfoTo.getUserKey();

@@ -7,7 +7,7 @@ spring:
   application:
     name: mall-product
   datasource:
-    url: jdbc:mysql://192.168.1.114:3306/mall_pms?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=GMT%2B8
+    url: jdbc:mysql://192.168.1.118:3306/mall_pms?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=GMT%2B8
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 123456
@@ -20,7 +20,7 @@ spring:
   thymeleaf:
     cache: false
   redis:
-    host: 192.168.1.114
+    host: 192.168.1.118
     port: 6379
   session:
     store-type: redis
@@ -31,6 +31,6 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
-logging:
-  level:
-    com.qiangzengy.mall: debug
+#logging:
+#  level:
+#    com.qiangzengy.mall: debug

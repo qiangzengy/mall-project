@@ -87,9 +87,9 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         String key = (String) params.get("key");
         if(!StringUtils.isEmpty(key)){
             //attr_id  attr_name
-            queryWrapper.and((wrapper)->{
-                wrapper.eq("attr_id",key).or().like("attr_name",key);
-            });
+            queryWrapper.and(wrapper->
+                wrapper.eq("attr_id",key).or().like("attr_name",key)
+            );
         }
 
         IPage<AttrEntity> page = this.page(
@@ -136,15 +136,11 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         if(attrEntity.getAttrType() == AttrEnum.ATTR_TYPE_BASE.getCode()){
             //1、修改分组关联
             AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
-
             relationEntity.setAttrGroupId(attr.getAttrGroupId());
             relationEntity.setAttrId(attr.getAttrId());
-
             Integer count = relationDao.selectCount(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attr.getAttrId()));
             if(count>0){
-
                 relationDao.update(relationEntity,new UpdateWrapper<AttrAttrgroupRelationEntity>().eq("attr_id",attr.getAttrId()));
-
             }else{
                 relationDao.insert(relationEntity);
             }
@@ -160,7 +156,6 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         List<Long> attrIds = entities.stream().map((attr) ->
              attr.getAttrId()
         ).collect(Collectors.toList());
-
         if(attrIds == null || attrIds.size() == 0){
             return null;
         }
@@ -206,14 +201,12 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         }
         String key = (String) params.get("key");
         if(!StringUtils.isEmpty(key)){
-            wrapper.and((w)->
+            wrapper.and(w->
                 w.eq("attr_id",key).or().like("attr_name",key)
             );
         }
         IPage<AttrEntity> page = this.page(new Query<AttrEntity>().getPage(params), wrapper);
-
         PageUtils pageUtils = new PageUtils(page);
-
         return pageUtils;
     }
 

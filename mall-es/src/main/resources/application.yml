@@ -11,6 +11,9 @@ spring:
       discovery:
         server-addr: 127.0.0.1:8848
   redis:
-    host: 192.168.3.42
+    host: 192.168.1.118
   session:
     store-type: redis
+mall:
+  elasticsearch:
+    ip_address: 192.168.1.114

@@ -65,7 +65,6 @@ public class IdWorker {
                 throw new IllegalArgumentException(
                         String.format("worker Id can't be greater than %d or less than 0",maxWorkerId));
             }
-
             if (datacenterId > maxDatacenterId || datacenterId < 0) {
 
                 throw new IllegalArgumentException(
@@ -81,7 +80,6 @@ public class IdWorker {
             // 这儿就是获取当前时间戳，单位是毫秒
             long timestamp = timeGen();
             if (timestamp < lastTimestamp) {
-
                 System.err.printf(
                         "clock is moving backwards. Rejecting requests until %d.", lastTimestamp);
                 throw new RuntimeException(
@@ -138,11 +136,10 @@ public class IdWorker {
          * @param args
          */
         public static void main(String[] args) {
-
             IdWorker worker = new IdWorker(1,1,1);
-		for (int i = 0; i < 5; i++) {
-			System.out.println(worker.nextId());
-		}
+		    //for (int i = 0; i < 5; i++) {
+			   System.out.println(worker.nextId());
+		    //}
         }
 
 

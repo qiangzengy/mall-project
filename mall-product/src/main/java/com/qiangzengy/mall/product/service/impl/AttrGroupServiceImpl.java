@@ -5,6 +5,7 @@ import com.qiangzengy.mall.product.entity.AttrEntity;
 import com.qiangzengy.mall.product.entity.vo.AttrGroupWithAttrsVo;
 import com.qiangzengy.mall.product.entity.vo.SpuItemAttrGroupVo;
 import com.qiangzengy.mall.product.service.AttrService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +26,11 @@ import com.qiangzengy.mall.product.service.AttrGroupService;
 
 
 @Service("attrGroupService")
+@Slf4j
 public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEntity> implements AttrGroupService {
 
     @Autowired
     private AttrService attrService;
-
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -37,21 +38,18 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
                 new Query<AttrGroupEntity>().getPage(params),
                 new QueryWrapper<>()
         );
-
         return new PageUtils(page);
     }
 
 
     @Override
     public PageUtils querycatelogIdPage(Map<String, Object> params,Long catelogId) {
-
         //判断catelogId是否为null
         if (catelogId==null){
             IPage<AttrGroupEntity> page = this.page(
                     new Query<AttrGroupEntity>().getPage(params),
                     new QueryWrapper<>()
             );
-
             return new PageUtils(page);
         }else {
             //sql的实现
@@ -61,17 +59,14 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
             QueryWrapper<AttrGroupEntity>queryWrapper=new QueryWrapper<>();
             queryWrapper.eq("catelog_id",catelogId);
             if(StringUtils.isNotEmpty(key)){
-                queryWrapper.and((obj) ->
-                    obj.eq("attr_group_id",key).or().like("attr_group_name",key)
+                queryWrapper.and(
+                        obj -> obj.eq("attr_group_id",key).or().like("attr_group_name",key)
                 );
             }
-
             IPage<AttrGroupEntity> page = this.page(
                     new Query<AttrGroupEntity>().getPage(params), queryWrapper);
             return new PageUtils(page);
-
         }
-
     }
 
 
@@ -80,7 +75,6 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         //com.atguigu.gulimall.product.vo
         //1、查询分组信息
         List<AttrGroupEntity> attrGroupEntities = this.list(new QueryWrapper<AttrGroupEntity>().eq("catelog_id", catelogId));
-
         //2、查询所有属性
         List<AttrGroupWithAttrsVo> collect = attrGroupEntities.stream().map(group -> {
             AttrGroupWithAttrsVo attrsVo = new AttrGroupWithAttrsVo();
@@ -89,14 +83,12 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
             attrsVo.setAttrs(attrs);
             return attrsVo;
         }).collect(Collectors.toList());
-
         return collect;
     }
 
     @Override
     public List<SpuItemAttrGroupVo> getAttrGroupWithAttrsBySpuId(Long spuId, Long catalogId) {
         List<SpuItemAttrGroupVo> groupVos=this.baseMapper.getAttrGroupWithAttrsBySpuId(spuId,catalogId);
-
-        return null;
+        return groupVos;
     }
 }

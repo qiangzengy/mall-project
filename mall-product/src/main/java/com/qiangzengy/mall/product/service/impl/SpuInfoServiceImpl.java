@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -72,7 +74,6 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     private SearchFeignService searchFeignService;
-
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -258,17 +259,14 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         List<SkuInfoEntity> skuInfos=skuInfoService.getSpuId(spuId);
         //查询当前sku的所有可以用来检索的规格属性
         List<ProductAttrValueEntity>attrValueEntities=attrValueService.baseAttrlistforspu(spuId);
-        List<Long> attrIds=attrValueEntities.stream().map(attrValue -> attrValue.getAttrId()).collect(Collectors.toList());
+        List<Long>attrIds=attrValueEntities.stream().map(attrValue -> attrValue.getAttrId()).collect(Collectors.toList());
         List<Long>baseAttrIds=attrService.selectSerachAttrIds(attrIds);
-
         Set<Long>idSet=new HashSet<>(baseAttrIds);
         //先过滤，在映射
         List<SkuEsModel.Attrs>attrsList=attrValueEntities.stream().filter(item -> {
             //判断set是否包括attrId
             return idSet.contains(item.getAttrId());
-
         }).map(item -> {
-
             SkuEsModel.Attrs attrs = new SkuEsModel.Attrs();
             BeanUtils.copyProperties(item,attrs);
             return attrs;
@@ -277,28 +275,53 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         //查询所有的skuId
         List<Long> skuIdList=skuInfos.stream().map(SkuInfoEntity::getSkuId).collect(Collectors.toList());
         //此处需要注意，可能会由于网络的原因，导致调用远程服务失败，可以try一下
-        Map<Long,Boolean>map=null;
+        Map<Long,Boolean>mapData=null;
         try {
             //发送远程调用库存服务，查询是否有库存 （asStock 是否有库存）
             R hasStock=wareFeignService.getSkuHasStock(skuIdList);
             //List<SkuHasStockVo> hasStockVoList=hasStock.getData();
             TypeReference<List<SkuHasStockVo>> typeReference = new TypeReference<List<SkuHasStockVo>>() {
             };
-            //TODO 有点问题
-            map=hasStock.getData("data",typeReference).stream().collect(Collectors.toMap(SkuHasStockVo::getSkuId, item -> item.getHasStock()));
+            mapData=hasStock.getData("data",typeReference).stream().collect(Collectors.toMap(SkuHasStockVo::getSkuId, item -> item.getHasStock()));
         }catch (Exception e){
             log.error("调用库存服务失败:原因{}",e);
         }
 
-
+        /**
+         *
+         *lambda表达式中引用的变量应当是最终变量或者实际是那个的最终变量
+         * mapData因为发生了改变，这里需要重新赋值：Map<Long, Boolean> finalMap = map;
+         */
         //封装每个sku的信息
-        Map<Long, Boolean> finalMap = map;
+        Map<Long, Boolean> finalMap = mapData;
         List<SkuEsModel> collect = skuInfos.stream().map(sku -> {
             //组装需要的数据
             SkuEsModel esModel = new SkuEsModel();
             BeanUtils.copyProperties(sku, esModel);
             esModel.setSkuPrice(sku.getPrice());
             esModel.setSkuImg(sku.getSkuDefaultImg());
+            /**
+             * 这里直接用mapData，编译器报错
+             * Variable used in lambda expression should be final or effectively final
+             *
+             *
+             * final int a;
+             * a = 1;
+             * // a = 2;
+             * // 由于 a 是 final 的，所以不能被重新赋值
+             *
+             * int b;
+             * b = 1;
+             * // b 此后再未更改
+             * // b 就是 effectively final
+             *
+             * int c;
+             * c = 1;
+             * // c 先被赋值为 1，随后又被重新赋值为 2
+             * c = 2;
+             * // c 就不是 effectively final
+             *
+             */
             if (finalMap != null) {
                 //查看是否有库存
                 esModel.setHasStock(finalMap.get(sku.getSkuId()));
@@ -316,16 +339,18 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             esModel.setAttrs(attrsList);
             return esModel;
         }).collect(Collectors.toList());
-
-        //TODO 4.将数据发送给es进行保存
-        R r = searchFeignService.productStatusUp(collect);
-        if(r.getCode()==0){
-            //修改spu状态，上架
-            baseMapper.uodataStatus(spuId, StatusEnum.SPU_UP.getCode());
-        }else {
-            //重复调用的问题，接口幂等性，重试机制
+        //重试机制
+        while (true){
+            R r = searchFeignService.productStatusUp(collect);
+            if(r.getCode()==0){
+                //重复调用的问题，接口幂等性
+                if(baseMapper.selectById(spuId).getPublishStatus()==StatusEnum.SPU_UP.getCode())
+                    break;
+                //修改spu状态，上架
+                baseMapper.uodataStatus(spuId, StatusEnum.SPU_UP.getCode());
+                break;
+            }
         }
-
     }
 
     @Override
@@ -334,4 +359,5 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         SpuInfoEntity spuInfoEntity = baseMapper.selectById(entity.getSpuId());
         return spuInfoEntity;
     }
+
 }

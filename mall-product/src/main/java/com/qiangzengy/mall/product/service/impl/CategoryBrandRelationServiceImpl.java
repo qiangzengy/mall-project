@@ -23,23 +23,23 @@ import com.qiangzengy.mall.product.dao.CategoryBrandRelationDao;
 import com.qiangzengy.mall.product.entity.CategoryBrandRelationEntity;
 import com.qiangzengy.mall.product.service.CategoryBrandRelationService;
 
+import javax.annotation.Resource;
+
 
 @Service("categoryBrandRelationService")
 public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandRelationDao, CategoryBrandRelationEntity> implements CategoryBrandRelationService {
 
-
-    @Autowired
+    @Resource
     private BrandDao brandDao;
 
-    @Autowired
+    @Resource
     private CategoryDao categoryDao;
 
-    @Autowired
+    @Resource
     private CategoryBrandRelationDao relationDao;
 
     @Autowired
     private BrandService brandService;
-
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -47,10 +47,8 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
                 new Query<CategoryBrandRelationEntity>().getPage(params),
                 new QueryWrapper<>()
         );
-
         return new PageUtils(page);
     }
-
 
     @Override
     public void saveDetail(CategoryBrandRelationEntity categoryBrandRelation) {
@@ -59,14 +57,11 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
         //1、查询详细名字
         BrandEntity brandEntity = brandDao.selectById(brandId);
         CategoryEntity categoryEntity = categoryDao.selectById(catalogId);
-
         categoryBrandRelation.setBrandName(brandEntity.getName());
         categoryBrandRelation.setCatelogName(categoryEntity.getName());
-
         this.save(categoryBrandRelation);
 
     }
-
 
     @Override
     public void updateBrand(Long brandId, String name) {
@@ -87,9 +82,9 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
         return collect;
     }
 
-
     @Override
     public void updateCategory(Long catId, String name) {
         this.baseMapper.updateCategory(catId,name);
     }
+
 }

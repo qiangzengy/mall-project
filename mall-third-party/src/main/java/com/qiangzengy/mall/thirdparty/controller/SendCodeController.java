@@ -24,10 +24,8 @@ public class SendCodeController {
     @Value("${aliyun.oss.access-key}")
     private String accessKey;
 
-
     @GetMapping("/send")
     public R sendMsm(@RequestParam("phone") String phone,@RequestParam("code") String code) {
-
         Map<String,Object> param = new HashMap<>();
         param.put("code",code);
         //调用service发送短信的方法
@@ -40,7 +38,6 @@ public class SendCodeController {
         DefaultProfile profile =
                 DefaultProfile.getProfile("default", accessId,accessKey);
         IAcsClient client = new DefaultAcsClient(profile);
-
         //设置相关固定的参数
         CommonRequest request = new CommonRequest();
         //request.setProtocol(ProtocolType.HTTPS);
@@ -48,7 +45,6 @@ public class SendCodeController {
         request.setDomain("dysmsapi.aliyuncs.com");
         request.setVersion("2017-05-25");
         request.setAction("SendSms");
-
         //设置发送相关的参数
         request.putQueryParameter("PhoneNumbers",phone); //手机号
         request.putQueryParameter("SignName","爱嘉昕"); //申请阿里云 签名名称

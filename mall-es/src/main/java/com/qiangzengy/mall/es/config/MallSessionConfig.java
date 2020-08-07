@@ -15,7 +15,6 @@ public class MallSessionConfig {
         DefaultCookieSerializer defaultCookieSerializer = new DefaultCookieSerializer();
         defaultCookieSerializer.setDomainName("gulimall.com");
         defaultCookieSerializer.setCookieName("GULISESSION");
-
         return defaultCookieSerializer;
     }
 

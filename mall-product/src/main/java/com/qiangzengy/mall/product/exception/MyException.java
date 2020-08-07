@@ -42,7 +42,7 @@ public class MyException {
     @ExceptionHandler(value = Exception.class)
     public R handleVaildException(Exception e){
         log.error("错误",e);
-        return R.error(ExceptionCode.UNKNOW_EXCEPTION.getCode(),ExceptionCode.UNKNOW_EXCEPTION.getMsg());
+        return R.error(ExceptionCode.UN_KNOW_EXCEPTION.getCode(),ExceptionCode.UN_KNOW_EXCEPTION.getMsg());
     }
 
 }
