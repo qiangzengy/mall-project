@@ -27,6 +27,7 @@ public class XssFilter implements Filter {
             throws IOException, ServletException {
 		XssHttpServletRequestWrapper xssRequest = new XssHttpServletRequestWrapper(
 				(HttpServletRequest) request);
+		//放行请求
 		chain.doFilter(xssRequest, response);
 	}
 

@@ -43,24 +43,24 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
 
     @Override
-    public PageUtils querycatelogIdPage(Map<String, Object> params,Long catelogId) {
+    public PageUtils querycatelogIdPage(Map<String, Object> params, Long catelogId) {
         //判断catelogId是否为null
-        if (catelogId==null){
+        if (catelogId == null) {
             IPage<AttrGroupEntity> page = this.page(
                     new Query<AttrGroupEntity>().getPage(params),
                     new QueryWrapper<>()
             );
             return new PageUtils(page);
-        }else {
+        } else {
             //sql的实现
             //select * from pms_attr_group where catelog_id=? and (attr_group_id=key or attr_group_name like %key%)
             //获取参数中key的值
-            String key=params.get("key").toString();
-            QueryWrapper<AttrGroupEntity>queryWrapper=new QueryWrapper<>();
-            queryWrapper.eq("catelog_id",catelogId);
-            if(StringUtils.isNotEmpty(key)){
+            String key = params.get("key").toString();
+            QueryWrapper<AttrGroupEntity> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("catelog_id", catelogId);
+            if (StringUtils.isNotEmpty(key)) {
                 queryWrapper.and(
-                        obj -> obj.eq("attr_group_id",key).or().like("attr_group_name",key)
+                        obj -> obj.eq("attr_group_id", key).or().like("attr_group_name", key)
                 );
             }
             IPage<AttrGroupEntity> page = this.page(
@@ -78,7 +78,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         //2、查询所有属性
         List<AttrGroupWithAttrsVo> collect = attrGroupEntities.stream().map(group -> {
             AttrGroupWithAttrsVo attrsVo = new AttrGroupWithAttrsVo();
-            BeanUtils.copyProperties(group,attrsVo);
+            BeanUtils.copyProperties(group, attrsVo);
             List<AttrEntity> attrs = attrService.getRelationAttr(attrsVo.getAttrGroupId());
             attrsVo.setAttrs(attrs);
             return attrsVo;
@@ -88,7 +88,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
     @Override
     public List<SpuItemAttrGroupVo> getAttrGroupWithAttrsBySpuId(Long spuId, Long catalogId) {
-        List<SpuItemAttrGroupVo> groupVos=this.baseMapper.getAttrGroupWithAttrsBySpuId(spuId,catalogId);
+        List<SpuItemAttrGroupVo> groupVos = this.baseMapper.getAttrGroupWithAttrsBySpuId(spuId, catalogId);
         return groupVos;
     }
 }

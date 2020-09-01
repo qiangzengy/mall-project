@@ -54,12 +54,12 @@ public class MallSeaechServiceImpl implements MallSearchService {
     public SearchResult search(SearchParam searchParam) {
 
         //1。构建查询的DSL语句
-        SearchRequest searchRequest=buildSearchRequest(searchParam);
+        SearchRequest searchRequest = buildSearchRequest(searchParam);
         try {
             //2。执行检索请求
             SearchResponse response = restHighLevelClient.search(searchRequest, ESConfig.COMMON_OPTIONS);
             //3。将响应数据分装成指定结果
-            SearchResult result=buildSearchResult(response,searchParam);
+            SearchResult result = buildSearchResult(response, searchParam);
             return result;
         } catch (IOException e) {
             e.printStackTrace();
@@ -75,12 +75,12 @@ public class MallSeaechServiceImpl implements MallSearchService {
         SearchResult result = new SearchResult();
         //返回的所有结果
         SearchHits hits = response.getHits();
-        List<SkuEsModel> list=new ArrayList<>();
-        if (hits.getHits()!=null && hits.getHits().length>0){
+        List<SkuEsModel> list = new ArrayList<>();
+        if (hits.getHits() != null && hits.getHits().length > 0) {
             for (SearchHit hit : hits.getHits()) {
                 String source = hit.getSourceAsString();
                 SkuEsModel esModel = JSON.parseObject(source, SkuEsModel.class);
-                if (StringUtils.isNotEmpty(searchParam.getKeyword())){
+                if (StringUtils.isNotEmpty(searchParam.getKeyword())) {
                     HighlightField skuTitle = hit.getHighlightFields().get("skuTitle");
                     String string = skuTitle.getFragments()[0].string();
                     esModel.setSkuTitle(string);
@@ -91,11 +91,11 @@ public class MallSeaechServiceImpl implements MallSearchService {
         result.setModels(list);
         Aggregations aggregations = response.getAggregations();
         //set分类
-        List<SearchResult.CatalogVo> catalogVos=new ArrayList<>();
+        List<SearchResult.CatalogVo> catalogVos = new ArrayList<>();
         ParsedLongTerms catalog_agg = aggregations.get("catalog_agg");
         List<? extends Terms.Bucket> buckets = catalog_agg.getBuckets();
         for (Terms.Bucket bucket : buckets) {
-            SearchResult.CatalogVo catalogVo=new SearchResult.CatalogVo();
+            SearchResult.CatalogVo catalogVo = new SearchResult.CatalogVo();
             catalogVo.setCatalogId(Long.valueOf(bucket.getKeyAsString()));
             ParsedLongTerms catalog_agg_name = bucket.getAggregations().get("catalog_agg_name");
             List<? extends Terms.Bucket> buckets1 = catalog_agg_name.getBuckets();
@@ -103,11 +103,11 @@ public class MallSeaechServiceImpl implements MallSearchService {
             catalogVos.add(catalogVo);
         }
         //set品牌
-        List<SearchResult.BrandVo> brandVos=new ArrayList<>();
+        List<SearchResult.BrandVo> brandVos = new ArrayList<>();
         ParsedLongTerms brand_agg = aggregations.get("brand_agg");
         List<? extends Terms.Bucket> brand_aggBuckets = brand_agg.getBuckets();
         for (Terms.Bucket bucket : brand_aggBuckets) {
-            SearchResult.BrandVo brandVo=new SearchResult.BrandVo();
+            SearchResult.BrandVo brandVo = new SearchResult.BrandVo();
             brandVo.setBrandId(Long.valueOf(bucket.getKeyAsString()));
             //图片
             ParsedStringTerms brand_img_agg = bucket.getAggregations().get("brand_img_agg");
@@ -119,14 +119,14 @@ public class MallSeaechServiceImpl implements MallSearchService {
         }
 
         //set属性
-        List<SearchResult.AttrVo> attrVos=new ArrayList<>();
+        List<SearchResult.AttrVo> attrVos = new ArrayList<>();
         ParsedNested attr_agg = aggregations.get("attr_agg");
         ParsedLongTerms attr_id_agg = attr_agg.getAggregations().get("attr_id_agg");
         List<? extends Terms.Bucket> attr_id_aggBuckets = attr_id_agg.getBuckets();
         for (Terms.Bucket attr_id_aggBucket : attr_id_aggBuckets) {
-            SearchResult.AttrVo attrVo=new SearchResult.AttrVo();
+            SearchResult.AttrVo attrVo = new SearchResult.AttrVo();
             //id
-            String attr_id=attr_id_aggBucket.getKeyAsString();
+            String attr_id = attr_id_aggBucket.getKeyAsString();
             attrVo.setAttrId(Long.parseLong(attr_id));
             //名字
             ParsedStringTerms attr_name_agg = attr_id_aggBucket.getAggregations().get("attr_name_agg");
@@ -139,21 +139,21 @@ public class MallSeaechServiceImpl implements MallSearchService {
         }
 
         //总记录数
-        long total=hits.getTotalHits().value;
+        long total = hits.getTotalHits().value;
         result.setTotal(total);
         //总页码
-        int pageNums= (int)total%EsConstant.PRODUCT_PAGESIZE==0?(int)total/EsConstant.PRODUCT_PAGESIZE:(int)(total/EsConstant.PRODUCT_PAGESIZE+1);
+        int pageNums = (int) total % EsConstant.PRODUCT_PAGESIZE == 0 ? (int) total / EsConstant.PRODUCT_PAGESIZE : (int) (total / EsConstant.PRODUCT_PAGESIZE + 1);
         result.setTotalPages(pageNums);
         //当前页码
         result.setPageNum(searchParam.getPageNum());
 
-        List<Integer>pageNavs =new ArrayList<>();
+        List<Integer> pageNavs = new ArrayList<>();
         for (int i = 0; i < pageNums; i++) {
             pageNavs.add(i);
         }
         result.setPageNavs(pageNavs);
 
-        if (searchParam.getAttrs()!=null&& searchParam.getAttrs().size()>0){
+        if (searchParam.getAttrs() != null && searchParam.getAttrs().size() > 0) {
             List<SearchResult.NavVo> collect = searchParam.getAttrs().stream().map(item -> {
                 SearchResult.NavVo navVo = new SearchResult.NavVo();
                 String[] arry = item.split("_");

@@ -34,7 +34,7 @@ public class EsSaveServiceImpl implements EsSaveService {
         //1。建立索引
         BulkRequest bulkRequest = new BulkRequest();
         for (SkuEsModel skuEsModel : skuEsModels) {
-            IndexRequest indexResponse=new IndexRequest(EsConstant.PRODUCT_INDEX);
+            IndexRequest indexResponse = new IndexRequest(EsConstant.PRODUCT_INDEX);
             indexResponse.id(String.valueOf(skuEsModel.getSkuId()));
             String jsonString = JSON.toJSONString(skuEsModel);
             indexResponse.source(jsonString, XContentType.JSON);
@@ -43,7 +43,11 @@ public class EsSaveServiceImpl implements EsSaveService {
         BulkResponse bulk = highLevelClient.bulk(bulkRequest, ESConfig.COMMON_OPTIONS);
         boolean b = bulk.hasFailures();//如果失败，返回true
         List<String> collect = Arrays.stream(bulk.getItems()).map(item -> item.getId()).collect(Collectors.toList());
-        log.info("商品上架信：{},上架状态：{}",collect,!b);
+        log.info("商品上架信：{},上架状态：{}", collect, !b);
         return b;
     }
+
+
+
+
 }

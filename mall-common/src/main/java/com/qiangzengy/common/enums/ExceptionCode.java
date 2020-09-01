@@ -27,6 +27,9 @@ public enum ExceptionCode {
     VAILD_EXCEPTION(10001,"参数格式校验失败"),
     VAILD_SMS_CODE_EXCEPTION(10002,"验证码频率太高，稍后再试"),
     PRODUCT_UP_EXCEPTION(11000,"商品上架异常"),
+
+
+    //用户
     MEMBER_NAME_EXCEPTION(15001,"用户名已存在"),
     MEMBER_PHONE_EXCEPTION(15002,"手机号已存在"),
     LOGIN_ACCT_PASSWORD_INVAILD_EXCEPTION(15003,"账号或密码错误"),

@@ -64,35 +64,35 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
         QueryWrapper<SkuInfoEntity> queryWrapper = new QueryWrapper<>();
         String key = (String) params.get("key");
-        if(!StringUtils.isEmpty(key)){
-            queryWrapper.and((wrapper)-> wrapper.eq("sku_id",key).or().like("sku_name",key));
+        if (!StringUtils.isEmpty(key)) {
+            queryWrapper.and((wrapper) -> wrapper.eq("sku_id", key).or().like("sku_name", key));
         }
 
         String catalogId = (String) params.get("catalogId");
-        if(!StringUtils.isEmpty(catalogId)&&!"0".equalsIgnoreCase(catalogId)){
-            queryWrapper.eq("catalog_id",catalogId);
+        if (!StringUtils.isEmpty(catalogId) && !"0".equalsIgnoreCase(catalogId)) {
+            queryWrapper.eq("catalog_id", catalogId);
         }
 
         String brandId = (String) params.get("brandId");
-        if(!StringUtils.isEmpty(brandId)&&!"0".equalsIgnoreCase(catalogId)){
-            queryWrapper.eq("brand_id",brandId);
+        if (!StringUtils.isEmpty(brandId) && !"0".equalsIgnoreCase(catalogId)) {
+            queryWrapper.eq("brand_id", brandId);
         }
 
         String min = (String) params.get("min");
-        if(!StringUtils.isEmpty(min)){
-            queryWrapper.ge("price",min);
+        if (!StringUtils.isEmpty(min)) {
+            queryWrapper.ge("price", min);
         }
 
         String max = (String) params.get("max");
 
-        if(!StringUtils.isEmpty(max)  ){
-            try{
+        if (!StringUtils.isEmpty(max)) {
+            try {
                 BigDecimal bigDecimal = new BigDecimal(max);
 
-                if(bigDecimal.compareTo(new BigDecimal("0")) > 0){
-                    queryWrapper.le("price",max);
+                if (bigDecimal.compareTo(new BigDecimal("0")) > 0) {
+                    queryWrapper.le("price", max);
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
         }
@@ -107,15 +107,15 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
     @Override
     public List<SkuInfoEntity> getSpuId(long spuId) {
         QueryWrapper<SkuInfoEntity> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("spu_id",spuId);
+        queryWrapper.eq("spu_id", spuId);
         return this.list(queryWrapper);
-     }
+    }
 
 
     @Override
     public SkuItemVo item(Long skuId) throws ExecutionException, InterruptedException {
 
-        SkuItemVo itemVo=new SkuItemVo();
+        SkuItemVo itemVo = new SkuItemVo();
 
         /**
          * 异步编排，3、4、5需要依赖1的结果
@@ -156,7 +156,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         }, executor);
 
         //等待所有任务都完成
-        CompletableFuture.allOf(descFuture,groupVosFuture,salaVosFuture,imagesFuture).get();
+        CompletableFuture.allOf(descFuture, groupVosFuture, salaVosFuture, imagesFuture).get();
         return itemVo;
     }
 

@@ -212,24 +212,24 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         QueryWrapper<SpuInfoEntity> wrapper = new QueryWrapper<>();
 
         String key = (String) params.get("key");
-        if(!StringUtils.isEmpty(key)){
-            wrapper.and(w-> w.eq("id",key).or().like("spu_name",key));
+        if (!StringUtils.isEmpty(key)) {
+            wrapper.and(w -> w.eq("id", key).or().like("spu_name", key));
 
         }
         // status=1 and (id=1 or spu_name like xxx)
         String status = (String) params.get("status");
-        if(!StringUtils.isEmpty(status)){
-            wrapper.eq("publish_status",status);
+        if (!StringUtils.isEmpty(status)) {
+            wrapper.eq("publish_status", status);
         }
 
         String brandId = (String) params.get("brandId");
-        if(!StringUtils.isEmpty(brandId)&&!"0".equalsIgnoreCase(brandId)){
-            wrapper.eq("brand_id",brandId);
+        if (!StringUtils.isEmpty(brandId) && !"0".equalsIgnoreCase(brandId)) {
+            wrapper.eq("brand_id", brandId);
         }
 
         String catelogId = (String) params.get("catelogId");
-        if(!StringUtils.isEmpty(catelogId)&&!"0".equalsIgnoreCase(catelogId)){
-            wrapper.eq("catalog_id",catelogId);
+        if (!StringUtils.isEmpty(catelogId) && !"0".equalsIgnoreCase(catelogId)) {
+            wrapper.eq("catalog_id", catelogId);
         }
 
         /**
@@ -243,59 +243,59 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 new Query<SpuInfoEntity>().getPage(params),
                 wrapper
         );
-
         return new PageUtils(page);
     }
 
 
     /**
      * 商品上架
+     *
      * @param spuId
      */
     @Override
     public void spuUp(Long spuId) {
 
-        //查出当前spuid对应的所有sku信息
-        List<SkuInfoEntity> skuInfos=skuInfoService.getSpuId(spuId);
-        //查询当前sku的所有可以用来检索的规格属性
-        List<ProductAttrValueEntity>attrValueEntities=attrValueService.baseAttrlistforspu(spuId);
-        List<Long>attrIds=attrValueEntities.stream().map(attrValue -> attrValue.getAttrId()).collect(Collectors.toList());
-        List<Long>baseAttrIds=attrService.selectSerachAttrIds(attrIds);
-        Set<Long>idSet=new HashSet<>(baseAttrIds);
-        //先过滤，在映射
-        List<SkuEsModel.Attrs>attrsList=attrValueEntities.stream().filter(item -> {
-            //判断set是否包括attrId
+        // 查出当前spuId对应的所有sku信息
+        List<SkuInfoEntity> skuInfos = skuInfoService.getSpuId(spuId);
+        // 查询当前sku的所有可以用来检索的规格属性
+        List<ProductAttrValueEntity> attrValueEntities = attrValueService.baseAttrlistforspu(spuId);
+        List<Long> attrIds = attrValueEntities.stream().map(attrValue -> attrValue.getAttrId()).collect(Collectors.toList());
+        List<Long> baseAttrIds = attrService.selectSerachAttrIds(attrIds);
+        Set<Long> idSet = new HashSet<>(baseAttrIds);
+        // 先过滤，在映射
+        List<SkuEsModel.Attrs> attrsList = attrValueEntities.stream().filter(item -> {
+            // 判断set是否包括attrId
             return idSet.contains(item.getAttrId());
         }).map(item -> {
             SkuEsModel.Attrs attrs = new SkuEsModel.Attrs();
-            BeanUtils.copyProperties(item,attrs);
+            BeanUtils.copyProperties(item, attrs);
             return attrs;
         }).collect(Collectors.toList());
 
-        //查询所有的skuId
-        List<Long> skuIdList=skuInfos.stream().map(SkuInfoEntity::getSkuId).collect(Collectors.toList());
-        //此处需要注意，可能会由于网络的原因，导致调用远程服务失败，可以try一下
-        Map<Long,Boolean>mapData=null;
+        // 查询所有的skuId
+        List<Long> skuIdList = skuInfos.stream().map(SkuInfoEntity::getSkuId).collect(Collectors.toList());
+        // 此处需要注意，可能会由于网络的原因，导致调用远程服务失败，可以try一下
+        Map<Long, Boolean> mapData = null;
         try {
-            //发送远程调用库存服务，查询是否有库存 （asStock 是否有库存）
-            R hasStock=wareFeignService.getSkuHasStock(skuIdList);
-            //List<SkuHasStockVo> hasStockVoList=hasStock.getData();
+            // 发送远程调用库存服务，查询是否有库存 （asStock 是否有库存）
+            R hasStock = wareFeignService.getSkuHasStock(skuIdList);
+            // List<SkuHasStockVo> hasStockVoList=hasStock.getData();
             TypeReference<List<SkuHasStockVo>> typeReference = new TypeReference<List<SkuHasStockVo>>() {
             };
-            mapData=hasStock.getData("data",typeReference).stream().collect(Collectors.toMap(SkuHasStockVo::getSkuId, item -> item.getHasStock()));
-        }catch (Exception e){
-            log.error("调用库存服务失败:原因{}",e);
+            mapData = hasStock.getData("data", typeReference).stream().collect(Collectors.toMap(SkuHasStockVo::getSkuId, item -> item.getHasStock()));
+        } catch (Exception e) {
+            log.error("调用库存服务失败:原因{}", e);
         }
 
         /**
          *
-         *lambda表达式中引用的变量应当是最终变量或者实际是那个的最终变量
+         * lambda表达式中引用的变量应当是最终变量或者实际是那个的最终变量
          * mapData因为发生了改变，这里需要重新赋值：Map<Long, Boolean> finalMap = map;
          */
         //封装每个sku的信息
         Map<Long, Boolean> finalMap = mapData;
         List<SkuEsModel> collect = skuInfos.stream().map(sku -> {
-            //组装需要的数据
+            // 组装需要的数据
             SkuEsModel esModel = new SkuEsModel();
             BeanUtils.copyProperties(sku, esModel);
             esModel.setSkuPrice(sku.getPrice());
@@ -320,10 +320,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
              * // c 先被赋值为 1，随后又被重新赋值为 2
              * c = 2;
              * // c 就不是 effectively final
-             *
              */
             if (finalMap != null) {
-                //查看是否有库存
+                // 查看是否有库存
                 esModel.setHasStock(finalMap.get(sku.getSkuId()));
             } else {
                 esModel.setHasStock(true);
@@ -339,14 +338,25 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             esModel.setAttrs(attrsList);
             return esModel;
         }).collect(Collectors.toList());
-        //重试机制
-        while (true){
+        // 重试机制
+        while (true) {
             R r = searchFeignService.productStatusUp(collect);
-            if(r.getCode()==0){
-                //重复调用的问题，接口幂等性
-                if(baseMapper.selectById(spuId).getPublishStatus()==StatusEnum.SPU_UP.getCode())
+            if (r.getCode() == 0) {
+                /**
+                 *  Feign调用流程
+                 *  SynchronousMethodHandler
+                 *  1。构造请求数据，将对象转为json
+                 *  RequestTemplate template = buildTemplateFromArgs.create(argv);
+                 *  2。发送请求进行执行
+                 *  executeAndDecode() (执行并且解码响应数据）
+                 *  3.执行请求会有重试机制
+                 *  Retryer retryer = this.retryer.clone();
+                 */
+
+                // 重复调用的问题，接口幂等性
+                if (baseMapper.selectById(spuId).getPublishStatus() == StatusEnum.SPU_UP.getCode())
                     break;
-                //修改spu状态，上架
+                // 修改spu状态，上架
                 baseMapper.uodataStatus(spuId, StatusEnum.SPU_UP.getCode());
                 break;
             }
