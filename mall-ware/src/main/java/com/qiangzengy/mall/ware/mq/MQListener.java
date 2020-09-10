@@ -1,17 +1,8 @@
 package com.qiangzengy.mall.ware.mq;
 
-import com.alibaba.fastjson.TypeReference;
 import com.qiangzengy.common.to.mq.OrderEntityTo;
-import com.qiangzengy.common.to.mq.StockDetailTo;
 import com.qiangzengy.common.to.mq.StockLockTo;
-import com.qiangzengy.common.utils.R;
-import com.qiangzengy.mall.ware.dao.WareSkuDao;
-import com.qiangzengy.mall.ware.entity.WareOrderTaskDetailEntity;
-import com.qiangzengy.mall.ware.entity.WareOrderTaskEntity;
-import com.qiangzengy.mall.ware.feign.OderFeignService;
-import com.qiangzengy.mall.ware.service.WareOrderTaskService;
 import com.qiangzengy.mall.ware.service.WareSkuService;
-import com.qiangzengy.mall.ware.service.impl.WareOrderTaskDetailServiceImpl;
 import com.rabbitmq.client.Channel;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;

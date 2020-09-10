@@ -8,6 +8,8 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.concurrent.TimeUnit;
+
 @SpringBootTest
 public class MallProductApplicationTests {
 
@@ -42,7 +44,23 @@ public class MallProductApplicationTests {
         //获取锁，只要锁的名字一样就是同一把锁
         RLock rLock = redissonClient.getLock("anyLock");
         //加锁
-        rLock.lock();//阻塞
+        /**
+         * 1。锁的自动续期，如果业务时间超长，运行期间自动给锁续上新的30s，不用担心业务时间过长，锁自动过期被删除
+         * 2。加锁的业务逻辑z只要运行完成，就不会给当前锁续期，即使不手动解锁，锁也会自动删除
+         */
+        //rLock.lock();//阻塞，默认加锁时间都是30s
+        /**
+         * 问题：rLock.lock(10, TimeUnit.SECONDS)，锁到期后，不会自动续期
+         * 1。如果传递了锁的过期时间，就发送给redis执行脚步，去占锁，过期时间就是传递的指定时间
+         * 2。如果不传过期时间，就使用30s（看门狗的默认时间）；只要占锁成功后，就会启动一个定时任务，
+         * 重新设置锁的过期时间，也是30s，定时任务执行时间是10s（看门狗时间除以3）执行一次。
+         *
+         */
+
+        //推荐使用，只需要将过期设置大一点，可以省掉续期操作
+        rLock.lock(10, TimeUnit.SECONDS);//注意，这里设置过期时间必要要大于业务的执行时间
+
+
         try {
             System.out.println("加锁成功。。。。。。。。；线程id："+Thread.currentThread().getId());
             Thread.sleep(5000);

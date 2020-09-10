@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Controller
 public class IndexController {
@@ -26,6 +27,7 @@ public class IndexController {
     
     @GetMapping({"/","/index.html"})
     public String indexPage(Model model){
+
 
         //1.查出所有的1级分类
         List<CategoryEntity> categoryEntities=categoryService.getLevel1Category();

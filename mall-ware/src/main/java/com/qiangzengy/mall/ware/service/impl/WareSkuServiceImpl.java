@@ -90,7 +90,6 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
                         //订单已取消，解锁库存
                         wareSkuDao.unLockStock(detail.getSkuId(),detail.getWareId(),detail.getSkuNum());
                         //更新库存工作单详情的状态
-
                         WareOrderTaskDetailEntity entity = wareOrderTaskDetailService.getById(detailId);
                         entity.setId(detailId);
                         entity.setLock_status(2);

@@ -27,11 +27,11 @@ public class EsSaveServiceImpl implements EsSaveService {
     @Resource
     private RestHighLevelClient highLevelClient;
 
-    //将数据保存到es中
+    // 将数据保存到es中
     @Override
     public boolean productStatusUp(List<SkuEsModel> skuEsModels) throws IOException {
 
-        //1。建立索引
+        // 1。建立索引
         BulkRequest bulkRequest = new BulkRequest();
         for (SkuEsModel skuEsModel : skuEsModels) {
             IndexRequest indexResponse = new IndexRequest(EsConstant.PRODUCT_INDEX);
@@ -41,13 +41,10 @@ public class EsSaveServiceImpl implements EsSaveService {
             bulkRequest.add(indexResponse);
         }
         BulkResponse bulk = highLevelClient.bulk(bulkRequest, ESConfig.COMMON_OPTIONS);
-        boolean b = bulk.hasFailures();//如果失败，返回true
+        boolean b = bulk.hasFailures();// 如果失败，返回true
         List<String> collect = Arrays.stream(bulk.getItems()).map(item -> item.getId()).collect(Collectors.toList());
         log.info("商品上架信：{},上架状态：{}", collect, !b);
         return b;
     }
-
-
-
 
 }

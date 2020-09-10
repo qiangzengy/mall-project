@@ -53,12 +53,12 @@ public class MallSeaechServiceImpl implements MallSearchService {
     @Override
     public SearchResult search(SearchParam searchParam) {
 
-        //1。构建查询的DSL语句
+        // 1。构建查询的DSL语句
         SearchRequest searchRequest = buildSearchRequest(searchParam);
         try {
-            //2。执行检索请求
+            // 2。执行检索请求
             SearchResponse response = restHighLevelClient.search(searchRequest, ESConfig.COMMON_OPTIONS);
-            //3。将响应数据分装成指定结果
+            // 3。将响应数据分装成指定结果
             SearchResult result = buildSearchResult(response, searchParam);
             return result;
         } catch (IOException e) {
@@ -73,7 +73,7 @@ public class MallSeaechServiceImpl implements MallSearchService {
      */
     private SearchResult buildSearchResult(SearchResponse response,SearchParam searchParam) {
         SearchResult result = new SearchResult();
-        //返回的所有结果
+        // 返回的所有结果
         SearchHits hits = response.getHits();
         List<SkuEsModel> list = new ArrayList<>();
         if (hits.getHits() != null && hits.getHits().length > 0) {
@@ -90,7 +90,7 @@ public class MallSeaechServiceImpl implements MallSearchService {
         }
         result.setModels(list);
         Aggregations aggregations = response.getAggregations();
-        //set分类
+        // set分类
         List<SearchResult.CatalogVo> catalogVos = new ArrayList<>();
         ParsedLongTerms catalog_agg = aggregations.get("catalog_agg");
         List<? extends Terms.Bucket> buckets = catalog_agg.getBuckets();
@@ -102,23 +102,23 @@ public class MallSeaechServiceImpl implements MallSearchService {
             catalogVo.setCatalogName(buckets1.get(0).getKeyAsString());
             catalogVos.add(catalogVo);
         }
-        //set品牌
+        // set品牌
         List<SearchResult.BrandVo> brandVos = new ArrayList<>();
         ParsedLongTerms brand_agg = aggregations.get("brand_agg");
         List<? extends Terms.Bucket> brand_aggBuckets = brand_agg.getBuckets();
         for (Terms.Bucket bucket : brand_aggBuckets) {
             SearchResult.BrandVo brandVo = new SearchResult.BrandVo();
             brandVo.setBrandId(Long.valueOf(bucket.getKeyAsString()));
-            //图片
+            // 图片
             ParsedStringTerms brand_img_agg = bucket.getAggregations().get("brand_img_agg");
             brandVo.setBrandImg(brand_img_agg.getBuckets().get(0).getKeyAsString());
-            //名字
+            // 名字
             ParsedStringTerms brand_name_agg = bucket.getAggregations().get("brand_name_agg");
             brandVo.setBrandImg(brand_name_agg.getBuckets().get(0).getKeyAsString());
             brandVos.add(brandVo);
         }
 
-        //set属性
+        // set属性
         List<SearchResult.AttrVo> attrVos = new ArrayList<>();
         ParsedNested attr_agg = aggregations.get("attr_agg");
         ParsedLongTerms attr_id_agg = attr_agg.getAggregations().get("attr_id_agg");
@@ -189,53 +189,51 @@ public class MallSeaechServiceImpl implements MallSearchService {
      */
     private SearchRequest buildSearchRequest(SearchParam searchParam) {
         SearchSourceBuilder searchSourceBuilder=new SearchSourceBuilder();
-        //构建检索条件
+        // 构建检索条件
         /**
          * 1。查询模糊匹配，过滤（属性、分类、价格区间、品牌、库存）
          * 2。排序、分页、高亮
          * 3。聚合分析
          */
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        //1.1。must->模糊匹配
+        // 1.1。must->模糊匹配
         if (StringUtils.isNotEmpty(searchParam.getKeyword())){
             boolQuery.must(QueryBuilders.matchQuery("skuTitle",searchParam.getKeyword()));
         }
-        //1.2。bool -> filter
-        //三级分类id
+        // 1.2。bool -> filter
+        // 三级分类id
         if (searchParam.getCatelog3Id()!=null){
             boolQuery.filter(QueryBuilders.termQuery("catalogId",searchParam.getCatelog3Id()));
         }
-        //名牌
+        // 名牌
         if(searchParam.getBrandId()!=null&&searchParam.getBrandId().size()>0){
             boolQuery.filter(QueryBuilders.termsQuery("brandId",searchParam.getBrandId()));
         }
 
-        //库存
+        // 库存
         boolQuery.filter(QueryBuilders.termsQuery("hasStock",searchParam.getHasStock()==1));
 
-        //属性
+        // 属性
         if(searchParam.getAttrs()!=null&&searchParam.getAttrs().size()>0){
-            //attrs=1_5寸:8寸&attrs=2_16G:32G
+            // attrs=1_5寸:8寸&attrs=2_16G:32G
             for (String attr : searchParam.getAttrs()) {
                 BoolQueryBuilder boolQuery2=QueryBuilders.boolQuery();
-                //attr=1_5寸:8寸
+                // attr=1_5寸:8寸
                 String[] arr=attr.split("_");
                 String attrId=arr[0];
                 String [] attrV=arr[1].split(":");
                 boolQuery2.must(QueryBuilders.termsQuery("attrs.attrId",attrId));
                 boolQuery2.must(QueryBuilders.termsQuery("attrs.attrValue",attrV));
-                //每一个都要查询一遍
+                // 每一个都要查询一遍
                 NestedQueryBuilder nestedQuery = QueryBuilders.nestedQuery("attrs", boolQuery2, ScoreMode.None);
                 boolQuery.filter(nestedQuery);
             }
         }
 
-        //价格区间
+        // 价格区间
         if (StringUtils.isNotEmpty(searchParam.getSkuPrice())){
-
             RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery("skuPrice");
             String price=searchParam.getSkuPrice();
-
             String [] arry=price.split("_");
             if(arry.length==2){
                 rangeQuery.gte(arry[0]).lte(arry[1]);
@@ -249,21 +247,20 @@ public class MallSeaechServiceImpl implements MallSearchService {
             }
             boolQuery.filter(rangeQuery);
         }
-        //查询条件
+        // 查询条件
         searchSourceBuilder.query(boolQuery);
-
-        //2.1。排序
+        // 2.1。排序
         if (StringUtils.isNotEmpty(searchParam.getSort())){
             //sort=hotScore_asc/desc
             String sort=searchParam.getSort();
             String [] arr=sort.split("_");
             searchSourceBuilder.sort(arr[0], arr[1].equals("asc")?SortOrder.ASC:SortOrder.DESC);
         }
-        //2.2。分页
+        // 2.2。分页
         int from=(searchParam.getPageNum()-1)*EsConstant.PRODUCT_PAGESIZE;
         searchSourceBuilder.from(from);
         searchSourceBuilder.size(EsConstant.PRODUCT_PAGESIZE);
-        //2.3。高亮
+        // 2.3。高亮
         if(StringUtils.isNotEmpty(searchParam.getKeyword())){
             HighlightBuilder highlightBuilder = new HighlightBuilder();
             highlightBuilder.field("skuTitle");
@@ -271,27 +268,26 @@ public class MallSeaechServiceImpl implements MallSearchService {
             highlightBuilder.preTags("</b>");
             searchSourceBuilder.highlighter(highlightBuilder);
         }
-
-        //聚合分析
-        //3.1品牌聚合
+        // 聚合分析
+        // 3.1品牌聚合
         TermsAggregationBuilder brand_agg = AggregationBuilders.terms("brand_agg");
         brand_agg.field("brandId").size(10);
-        //子聚合
+        // 子聚合
         brand_agg.subAggregation(AggregationBuilders.terms("brand_name_agg").field("brandName").size(1));
         brand_agg.subAggregation(AggregationBuilders.terms("brand_img_agg").field("brandImg").size(1));
         searchSourceBuilder.aggregation(brand_agg);
-        //3.2 分类聚合
+        // 3.2 分类聚合
         TermsAggregationBuilder catalog_agg = AggregationBuilders.terms("catalog_agg");
         catalog_agg.field("catalogId").size(10);
         catalog_agg.subAggregation(AggregationBuilders.terms("catalog_name_agg").field("catalogName").size(1));
         searchSourceBuilder.aggregation(catalog_agg);
-        //3.3 属性聚合
+        // 3.3 属性聚合
         NestedAggregationBuilder attr_agg = AggregationBuilders.nested("attr_agg", "attrs");
-        //子聚合,id
+        // 子聚合,id
         TermsAggregationBuilder attr_id_agg = AggregationBuilders.terms("attr_id_agg").field("attrs.attrId").size(10);
-        //子子聚合,name
+        // 子子聚合,name
         attr_id_agg.subAggregation(AggregationBuilders.terms("attr_name_agg").field("attrs.attrName").size(1));
-        //value
+        // value
         attr_id_agg.subAggregation(AggregationBuilders.terms("attr_value_agg").field("attrs.attrValue").size(10));
         attr_agg.subAggregation(attr_id_agg);
         searchSourceBuilder.aggregation(attr_agg);

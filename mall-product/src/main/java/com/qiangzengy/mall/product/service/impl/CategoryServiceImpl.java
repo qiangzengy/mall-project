@@ -256,7 +256,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     /**
      * 分布式锁redission的实现
      * <p>
-     * 缓存数据如何和数据库保持一致：1。双写模式 2。失效模式
+     * 缓存数据如何和数据库保持一致（需要加锁来实现缓存的一致性）：1。双写模式 2。失效模式
      *
      * @return
      */
@@ -322,6 +322,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                  * 此时还可能存在处理时间过长的问题，刚取到原来的值，还没删除key，key过期了，又有新的key产生，
                  * 在执行删除key的操作，此时删除的是别人的key，也需要原子操作
                  * 解决方案：使用redis脚本删除
+                 *
+                 * 获取值对比与删除需要是原子操作
                  */
                 String lu = "if redis.call(‘get’,KEYS[1]) == ARGV[1]\n" +
                         "then\n" +
@@ -329,10 +331,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                         "else\n" +
                         "    return 0\n" +
                         "end";
-                redisTemplate.execute(new DefaultRedisScript<>(lu), Arrays.asList("lock"), value);
+                redisTemplate.execute(new DefaultRedisScript<>(lu, Long.class), Arrays.asList("lock"), value);
             }
         } else {
             //加锁失败，需要重试
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             return getCatalogJsonFromDBDbWithRedisLock();//自旋的方式
         }
 
