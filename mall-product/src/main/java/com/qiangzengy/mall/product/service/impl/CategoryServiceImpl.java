@@ -254,16 +254,19 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
 
     /**
-     * 分布式锁redission的实现
+     * 分布式锁redission的实现（所有的操作都是原子的)
      * <p>
-     * 缓存数据如何和数据库保持一致（需要加锁来实现缓存的一致性）：1。双写模式 2。失效模式
+     * 缓存数据如何和数据库保持一致（大并发需要加锁(读写锁)来实现缓存的一致性）：
+     * 1。双写模式：修改数据库的数据，也去修改缓存数据
+     * 2。失效模式：修改数据库数据，将缓存数据删掉
      *
      * @return
      */
     public Map<String, List<Catalog2Vo>> getCatalogJsonFromDBDbWithRedissionLock() {
 
         //注意：锁的名字->锁的粒度，越细越快
-        RLock rLock = redissonClient.getLock("lock");
+        //约定：锁的力度，具体缓存的是某个数据，11-商品，product-11-lock
+        RLock rLock = redissonClient.getLock("catalogJson-lock");
         //加锁
         rLock.lock();
         try {

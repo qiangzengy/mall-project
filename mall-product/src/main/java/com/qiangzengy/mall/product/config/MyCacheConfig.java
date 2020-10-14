@@ -45,9 +45,7 @@ public class MyCacheConfig {
         if (redisProperties.getTimeToLive()!=null){
             configuration=configuration.disableKeyPrefix();
         }
-
         return configuration;
     }
-
 
 }

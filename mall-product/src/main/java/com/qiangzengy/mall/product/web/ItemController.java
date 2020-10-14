@@ -15,11 +15,11 @@ public class ItemController {
 
     @Autowired
     private SkuInfoService skuInfoService;
-    
+
     @GetMapping("/{skuId}.html")
     public String itemPage(@PathVariable("skuId") Long skuId, Model model) throws ExecutionException, InterruptedException {
-        SkuItemVo itemVo=skuInfoService.item(skuId);
-        model.addAttribute("item",itemVo);
+        SkuItemVo itemVo = skuInfoService.item(skuId);
+        model.addAttribute("item", itemVo);
         return "item";
     }
 }

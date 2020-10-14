@@ -14,11 +14,11 @@
     </resultMap>
 
     <resultMap id="skuItemSalaVo" type="com.qiangzengy.mall.product.entity.vo.SkuItemSalaVo">
-        <result column="attr_id" property="attrId"></result>
-        <result column="attr_name" property="attrName"></result>
+        <result column="attr_id" property="attrId"/>
+        <result column="attr_name" property="attrName"/>
         <collection property="attrValue" ofType="com.qiangzengy.mall.product.entity.vo.AttrValueWithSkuIdVo">
-            <result column="attr_value" property="attrValue"></result>
-            <result column="sku_ids" property="skuIds"></result>
+            <result column="attr_value" property="attrValue"/>
+            <result column="sku_ids" property="skuIds"/>
         </collection>
     </resultMap>
 

@@ -39,6 +39,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -98,8 +99,10 @@ public class MallSeaechServiceImpl implements MallSearchService {
             SearchResult.CatalogVo catalogVo = new SearchResult.CatalogVo();
             catalogVo.setCatalogId(Long.valueOf(bucket.getKeyAsString()));
             ParsedLongTerms catalog_agg_name = bucket.getAggregations().get("catalog_agg_name");
-            List<? extends Terms.Bucket> buckets1 = catalog_agg_name.getBuckets();
-            catalogVo.setCatalogName(buckets1.get(0).getKeyAsString());
+            if (Objects.nonNull(catalog_agg_name)){
+                List<? extends Terms.Bucket> buckets1 = catalog_agg_name.getBuckets();
+                catalogVo.setCatalogName(buckets1.get(0).getKeyAsString());
+            }
             catalogVos.add(catalogVo);
         }
         // set品牌

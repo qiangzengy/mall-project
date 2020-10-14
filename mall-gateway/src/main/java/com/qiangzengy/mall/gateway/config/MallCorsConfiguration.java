@@ -13,13 +13,10 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 public class MallCorsConfiguration {
 
     //CorsWebFilter Spring 提供的解决跨域请求
-
     @Bean
     public CorsWebFilter corsWebFilter(){
-
         //CorsConfigurationSource
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         //允许哪些头进行跨域
         corsConfiguration.addAllowedHeader("*");

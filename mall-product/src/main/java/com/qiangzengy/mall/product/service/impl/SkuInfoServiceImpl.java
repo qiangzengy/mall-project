@@ -130,31 +130,26 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         }, executor);
         //Long spuId=info.getSpuId();
         //Long catalogId = info.getCatalogId();
-
         CompletableFuture<Void> salaVosFuture = infoFuture.thenAcceptAsync((info) -> {
             //3。spu的销售属性
             List<SkuItemSalaAttrVo> salaVos = saleAttrValueService.getSpuIdSale(info.getSpuId());
             itemVo.setSalaVos(salaVos);
         }, executor);
-
         CompletableFuture<Void> descFuture = infoFuture.thenAcceptAsync((info) -> {
             //4。spu介绍
             SpuInfoDescEntity desc = descService.getById(info.getSpuId());
             itemVo.setDesc(desc);
         }, executor);
-
         CompletableFuture<Void> groupVosFuture = infoFuture.thenAcceptAsync(info -> {
             //5。spu规格参数
             List<SpuItemAttrGroupVo> groupVos = groupService.getAttrGroupWithAttrsBySpuId(info.getSpuId(), info.getCatalogId());
             itemVo.setGroupVos(groupVos);
         }, executor);
-
         CompletableFuture<Void> imagesFuture = CompletableFuture.runAsync(() -> {
             //2。sku的图片信息 pms_sku_images
             List<SkuImagesEntity> images = imagesService.getSkuIdImage(skuId);
             itemVo.setImages(images);
         }, executor);
-
         //等待所有任务都完成
         CompletableFuture.allOf(descFuture, groupVosFuture, salaVosFuture, imagesFuture).get();
         return itemVo;

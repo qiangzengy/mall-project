@@ -3,6 +3,7 @@ package com.qiangzengy.mall.product;
 import org.redisson.spring.session.config.EnableRedissonHttpSession;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -59,6 +60,23 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * 5、Redisson使用：
  *   1）、导入依赖
  *   2）、配置
+ *
+ * 8、整合Spring-Cache
+ *   1）、引入依赖
+ *       spring-boot-starter-cache、<artifactId>spring-boot-starter-data-redis</artifactId>
+ *
+ *   2）、写配置
+ *      自动配置了哪些
+ *      i：CacheAutoConfiguration 会导入RedisConfiguration自动配好了级存管理器 RediscecheManoger
+        ii: 配置使用redis作为据存
+ *     3)、测试使用缓存
+ * @Cacheable; Triggers cache popuLotion,触发将数据保存到缓存的操作
+ * @CacheEvict; Triggers cache eviction,触发将数据从缓存删除的操作
+ * @CachePut; Updates the cache without interfering with the method execution、不影响方法执行更新缓存
+ * @Caching：组合以上多个燥作
+ * @CacheConfig：在类级别共享缓存的相同配置
+ *
+ * 开启缓存功能 @EnableCaching
  */
 @EnableSwagger2
 @EnableRedissonHttpSession
@@ -66,7 +84,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @EnableFeignClients(basePackages = "com.qiangzengy.mall.product.feign")
 public class MallProductApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(MallProductApplication.class, args);
     }

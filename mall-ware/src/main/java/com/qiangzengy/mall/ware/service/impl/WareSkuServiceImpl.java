@@ -85,11 +85,11 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
                 Integer orderStatus = r.getData("orderStatus", new TypeReference<Integer>() {
                 });
                 if(orderStatus==null||orderStatus==4){
-                    //只有库存的状态为已锁定，才可以解锁
+                    // 只有库存的状态为已锁定，才可以解锁
                     if(byId.getLock_status()==1){
-                        //订单已取消，解锁库存
+                        // 订单已取消，解锁库存
                         wareSkuDao.unLockStock(detail.getSkuId(),detail.getWareId(),detail.getSkuNum());
-                        //更新库存工作单详情的状态
+                        // 更新库存工作单详情的状态
                         WareOrderTaskDetailEntity entity = wareOrderTaskDetailService.getById(detailId);
                         entity.setId(detailId);
                         entity.setLock_status(2);
@@ -128,7 +128,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 
     @Override
     public void addStock(Long skuId, Long wareId, Integer skuNum) {
-        //1、判断如果还没有这个库存记录新增
+        // 1、判断如果还没有这个库存记录新增
         List<WareSkuEntity> entities = wareSkuDao.selectList(new QueryWrapper<WareSkuEntity>().eq("sku_id", skuId).eq("ware_id", wareId));
         if(entities == null || entities.size() == 0){
             WareSkuEntity skuEntity = new WareSkuEntity();
@@ -136,7 +136,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             skuEntity.setStock(skuNum);
             skuEntity.setWareId(wareId);
             skuEntity.setStockLocked(0);
-            //远程查询sku的名字，如果失败，整个事务无需回滚，自己catch异常
+            // 远程查询sku的名字，如果失败，整个事务无需回滚，自己catch异常
             try {
                 R info = productFeignService.info(skuId);
                 Map<String,Object> data = (Map<String, Object>) info.get("skuInfo");

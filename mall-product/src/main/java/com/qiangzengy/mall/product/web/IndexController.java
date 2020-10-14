@@ -27,9 +27,7 @@ public class IndexController {
     
     @GetMapping({"/","/index.html"})
     public String indexPage(Model model){
-
-
-        //1.查出所有的1级分类
+        // 1.查出所有的1级分类
         List<CategoryEntity> categoryEntities=categoryService.getLevel1Category();
         model.addAttribute("categorys",categoryEntities);
         return "index";
@@ -38,7 +36,6 @@ public class IndexController {
     @ResponseBody
     @GetMapping("/index/json/catalog.json")
     public Map<String,List<Catalog2Vo>> getCatalogJson(){
-
         Map<String,List<Catalog2Vo>> catelogMap=categoryService.getCatalogJsonFromDBDb();
         return catelogMap;
 
@@ -47,7 +44,6 @@ public class IndexController {
     @ResponseBody
     @GetMapping("/hello")
     public String hello(){
-
         /**
          * 测试reidsson分布式锁：
          * 大家都知道，如果负责储存这个分布式锁的Redisson节点宕机以后，
@@ -71,14 +67,11 @@ public class IndexController {
             rLock.unlock();
             System.out.println("解锁成功。。。。。。。。。; 线程id："+Thread.currentThread().getId());
         }
-
         return "HelloWord";*/
-
-
         Thread thread1 = new Thread(() -> {
-            //获取锁，只要锁的名字一样就是同一把锁
+            // 获取锁，只要锁的名字一样就是同一把锁
             RLock rLock = redissonClient.getLock("anyLock");
-            //加锁
+            // 加锁
             rLock.lock();//阻塞
             try {
                 System.out.println("thread1  加锁成功。。。。。。。。；线程id："+Thread.currentThread().getId());
@@ -86,39 +79,31 @@ public class IndexController {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } finally {
-                //解锁
+                // 解锁
                 rLock.unlock();
                 System.out.println("thread1 解锁成功。。。。。。。。。; 线程id："+Thread.currentThread().getId());
             }
-
         });
         Thread thread2 = new Thread(() -> {
 
-            //获取锁，只要锁的名字一样就是同一把锁
+            // 获取锁，只要锁的名字一样就是同一把锁
             RLock rLock = redissonClient.getLock("anyLock");
-            //加锁
-            rLock.lock();//阻塞
+            // 加锁
+            rLock.lock();// 阻塞
             try {
                 System.out.println("thread2 加锁成功。。。。。。。。；线程id："+Thread.currentThread().getId());
                 Thread.sleep(5);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } finally {
-                //解锁
+                // 解锁
                 rLock.unlock();
                 System.out.println("thread2 解锁成功。。。。。。。。。; 线程id："+Thread.currentThread().getId());
             }
-
         });
 
         thread1.start();
         thread2.start();
         return "HelloWord";
     }
-
-
-
-
-
-
 }

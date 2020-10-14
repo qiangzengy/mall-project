@@ -29,7 +29,7 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
 
-        //1、获取key
+        // 1、获取key
         String key = (String) params.get("key");
         QueryWrapper<BrandEntity> queryWrapper = new QueryWrapper<>();
         if (!StringUtils.isEmpty(key)) {
@@ -47,7 +47,7 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
         if (!StringUtils.isEmpty(brand.getName())) {
             // 同步更新其他关联表中的数据
             categoryBrandRelationService.updateBrand(brand.getBrandId(), brand.getName());
-            //TODO 更新其他关联
+            // TODO 更新其他关联
         }
     }
 }
