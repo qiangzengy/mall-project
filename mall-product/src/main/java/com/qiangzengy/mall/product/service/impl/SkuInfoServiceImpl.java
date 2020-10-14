@@ -120,7 +120,6 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         /**
          * 异步编排，3、4、5需要依赖1的结果
          */
-
         //该结果，别人还要用
         CompletableFuture<SkuInfoEntity> infoFuture = CompletableFuture.supplyAsync(() -> {
             //1。sku的基本信息 pms_sku_info
