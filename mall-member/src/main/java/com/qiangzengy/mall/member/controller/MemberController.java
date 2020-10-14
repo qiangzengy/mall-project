@@ -37,8 +37,7 @@ public class MemberController {
     public R authlogin(@RequestBody SocialMember member) throws Exception {
         MemberEntity entity= memberService.login(member);
         if (entity==null){
-            return R.error(ExceptionCode.LOGIN_ACCT_PASSWORD_INVAILD_EXCEPTION.getCode(),
-                    ExceptionCode.LOGIN_ACCT_PASSWORD_INVAILD_EXCEPTION.getMsg());
+            return R.error(ExceptionCode.LOGIN_ACCT_PASSWORD_INVAILD_EXCEPTION);
         }
         return R.ok().put("data",entity);
     }
@@ -51,8 +50,7 @@ public class MemberController {
     public R login(@RequestBody MemberLogVo logVo){
        MemberEntity entity= memberService.login(logVo);
        if (entity==null){
-           return R.error(ExceptionCode.LOGIN_ACCT_PASSWORD_INVAILD_EXCEPTION.getCode(),
-                   ExceptionCode.LOGIN_ACCT_PASSWORD_INVAILD_EXCEPTION.getMsg());
+           return R.error(ExceptionCode.LOGIN_ACCT_PASSWORD_INVAILD_EXCEPTION);
        }
         return R.ok().put("data",entity);
     }
@@ -66,10 +64,10 @@ public class MemberController {
             memberService.regist(memBerRegistVo);
 
         }catch (PhoneExistException e){
-            return R.error(ExceptionCode.MEMBER_PHONE_EXCEPTION.getCode(),ExceptionCode.MEMBER_PHONE_EXCEPTION.getMsg());
+            return R.error(ExceptionCode.MEMBER_PHONE_EXCEPTION);
 
         }catch (UserNameExistException e){
-            return R.error(ExceptionCode.MEMBER_NAME_EXCEPTION.getCode(),ExceptionCode.MEMBER_NAME_EXCEPTION.getMsg());
+            return R.error(ExceptionCode.MEMBER_NAME_EXCEPTION);
         }
         return R.ok();
 

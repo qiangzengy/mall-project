@@ -1,8 +1,12 @@
 package com.qiangzengy.mall.auth.config;
 
+import com.qiangzengy.common.constant.AuthConstant;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.servlet.http.HttpSession;
 
 
 /**
@@ -11,9 +15,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class MallWebController implements WebMvcConfigurer {
 
+    /* 以前是这样，可以优化成下面这样
+    @GetMapping("/login.html")
+    public String logPage() {
+        return "login";
+    }
+*/
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        //registry.addViewController("/login.html").setViewName("login");
+
+        registry.addViewController("/login.html").setViewName("login");
         registry.addViewController("/reg.html").setViewName("reg");
 
     }

@@ -2,6 +2,7 @@ package com.qiangzengy.common.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.qiangzengy.common.enums.ExceptionCode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +48,15 @@ public class R extends HashMap<String, Object> {
 		r.put("msg", msg);
 		return r;
 	}
+
+	public static R error(ExceptionCode code) {
+		R r = new R();
+		r.put("code", code.getCode());
+		r.put("msg", code.getMsg());
+		return r;
+	}
+
+
 
 	public static R ok(String msg) {
 		R r = new R();

@@ -51,9 +51,8 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
     public void regist(MemBerRegistVo memBerRegistVo) {
         MemberEntity entity = new MemberEntity();
         //获取默认的会员等级
-        MemberLevelEntity levelEntity = memberLevelService.getOne((Wrapper<MemberLevelEntity>) new QueryWrapper().eq("default_status", 1));
+        MemberLevelEntity levelEntity = memberLevelService.getOne(new QueryWrapper<MemberLevelEntity>().eq("default_status", 1));
         entity.setLevelId(levelEntity.getId());
-
         //检查手机号是否唯一
         checkPhoneUnique(memBerRegistVo.getPhone());
         entity.setMobile(memBerRegistVo.getPhone());
