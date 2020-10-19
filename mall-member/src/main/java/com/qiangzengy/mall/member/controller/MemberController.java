@@ -114,7 +114,6 @@ public class MemberController {
     //@RequiresPermissions("member:member:update")
     public R update(@RequestBody MemberEntity member){
 		memberService.updateById(member);
-
         return R.ok();
     }
 

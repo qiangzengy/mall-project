@@ -176,7 +176,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public void checkItem(Long skuId, Integer check) {
         CartItem cartItem = getCartItem(skuId);
-        cartItem.setChec(check==1?true:false );
+        cartItem.setChec(check == 1);
         BoundHashOperations<String, Object, Object> operations = getCartOps();
         operations.put(skuId.toString(),JSON.toJSONString(cartItem));
 
