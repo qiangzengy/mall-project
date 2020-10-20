@@ -107,7 +107,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
      * @return
      */
     @Override
-    public MemberEntity login(SocialMember member) throws Exception {
+    public MemberEntity login(SocialMember member){
         String uid=member.getUid();
         //判断当前用户是否登陆过
         MemberEntity entity = baseMapper.selectOne(new QueryWrapper<MemberEntity>().eq("social_uid", uid));
@@ -141,8 +141,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
                     memberEntity.setNickname(name);
                     memberEntity.setGender("m".equals(gender)?1:0);
                 }
-
-            }catch (Exception e){
+            }catch (Exception ignored){
 
             }
             return memberEntity;
