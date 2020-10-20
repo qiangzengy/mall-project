@@ -168,7 +168,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
     public void deleteRelation(AttrGroupRelationVo[] vos) {
         //relationDao.delete(new QueryWrapper<>().eq("attr_id",1L).eq("attr_group_id",1L));
         //批量删除
-        List<AttrAttrgroupRelationEntity> entities = Arrays.asList(vos).stream().map((item) -> {
+        List<AttrAttrgroupRelationEntity> entities = Arrays.stream(vos).map((item) -> {
             AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
             BeanUtils.copyProperties(item, relationEntity);
             return relationEntity;

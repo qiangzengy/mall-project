@@ -446,7 +446,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     private List<CategoryEntity> getParent_cid(List<CategoryEntity> list, Long parentCid) {
         //return baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", v.getCatId()));
-        List<CategoryEntity> entities = list.stream().filter(item -> item.getParentCid() == parentCid).collect(Collectors.toList());
-        return entities;
+        return list.stream().filter(item -> item.getParentCid().equals(parentCid)).collect(Collectors.toList());
     }
 }
