@@ -48,7 +48,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
 
 
     @Override
-    public void regist(MemBerRegistVo memBerRegistVo) {
+    public void  regist(MemBerRegistVo memBerRegistVo) {
         MemberEntity entity = new MemberEntity();
         //获取默认的会员等级
         MemberLevelEntity levelEntity = memberLevelService.getOne(new QueryWrapper<MemberLevelEntity>().eq("default_status", 1));
@@ -111,9 +111,9 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
         String uid=member.getUid();
         //判断当前用户是否登陆过
         MemberEntity entity = baseMapper.selectOne(new QueryWrapper<MemberEntity>().eq("social_uid", uid));
+        MemberEntity memberEntity = new MemberEntity();
         if (entity!=null){
             //该用户已注册
-            MemberEntity memberEntity=new MemberEntity();
             memberEntity.setId(entity.getId());
             memberEntity.setSocialUid(uid);
             memberEntity.setAccessToken(member.getAccess_token());
@@ -125,10 +125,9 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
             return entity;
         }else {
             //需要注册
-            MemberEntity mentity=new MemberEntity();
-            mentity.setSocialUid(uid);
-            mentity.setAccessToken(member.getAccess_token());
-            mentity.setExposeIn(member.getExpires_in().toString());
+            memberEntity.setSocialUid(uid);
+            memberEntity.setAccessToken(member.getAccess_token());
+            memberEntity.setExposeIn(member.getExpires_in().toString());
             //查询社交用户的账号信息
             try{
                 Map<String,String>map=new HashMap<>();
@@ -139,14 +138,14 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
                     JSONObject object= JSON.parseObject(json);
                     String name = object.getString("name");
                     String gender = object.getString("gender");
-                    mentity.setNickname(name);
-                    mentity.setGender("m".equals(gender)?1:0);
+                    memberEntity.setNickname(name);
+                    memberEntity.setGender("m".equals(gender)?1:0);
                 }
 
             }catch (Exception e){
 
             }
-            return mentity;
+            return memberEntity;
 
         }
 

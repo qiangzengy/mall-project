@@ -52,7 +52,6 @@ public class LoginController {
                 return R.error(ExceptionCode.VAILD_SMS_CODE_EXCEPTION.getCode(), ExceptionCode.VAILD_SMS_CODE_EXCEPTION.getMsg());
             }
         }
-        //验证码校验
         String codeNew = RandomUtil.getFourBitRandom() + "_" + System.currentTimeMillis();
         //缓存验证码，方便下次校验
         redisTemplate.opsForValue().set(AuthConstant.SMS_CODE_CACHE_PREFIX + phone, codeNew, 10, TimeUnit.MINUTES);
@@ -145,9 +144,10 @@ public class LoginController {
         }
     }
 
+
     @GetMapping("/login.html")
     public String logPage(HttpSession session) {
-        //只要没登陆过，才来这里
+        //只有没登陆过，跳到登录页，登录过，跳回首页
         Object attribute = session.getAttribute(AuthConstant.LOGIN_USER);
         if (attribute == null) {
             return "login";
