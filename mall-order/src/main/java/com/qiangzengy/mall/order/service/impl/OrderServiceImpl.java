@@ -49,7 +49,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 /**
  * seata AT模式控制分布式事务：（不适合高并发）
  * )、每一个微服务先必须创建 undo_log
- * 2)、安装事务协调器seata-server:httpsi//github.com/seata/seata/releases
+ * 2)、安装事务协调器seata-server:https//github.com/seata/seata/releases
  * 3)、整合
  * 1、导入依赖 spring-cLoud-starter-alibaba-seata seata-all-0.7.1
  * 2、解压并启动 seata-server;
@@ -97,7 +97,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<OrderEntity> page = this.page(
                 new Query<OrderEntity>().getPage(params),
-                new QueryWrapper<OrderEntity>()
+                new QueryWrapper<>()
         );
 
         return new PageUtils(page);
@@ -138,7 +138,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         }, executor).thenRunAsync(()->{
             List<OrderItemVo> itemVos = confirmVo.getItemVos();
             //查询所有商品的id
-            List<Long> ids = itemVos.stream().map(item -> item.getSkuId()).collect(Collectors.toList());
+            List<Long> ids = itemVos.stream().map(OrderItemVo::getSkuId).collect(Collectors.toList());
             R r = wmsFeignService.getSkuHasStock(ids);
             List<SkuStockVo> data = r.getData("data", new TypeReference<List<SkuStockVo>>() {
             });
@@ -148,6 +148,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             }
 
         },executor);
+
 
         //查询积分
         confirmVo.setIntergration(memberResVo.getIntegration());
@@ -182,7 +183,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         String script="if redis.call('get', KEYS[1])==ARGV[1]then return redis.call('del', KEYS[1])else return O end";
         String pageToken=orderVo.getOrderToken();
         Long execute = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class),
-                Arrays.asList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberResVo.getId()), pageToken);
+                Collections.singletonList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberResVo.getId()), pageToken);
+        assert execute != null;
         if (execute==1){
             //令牌验证成功
             OrderCreateTo order = createOrder();

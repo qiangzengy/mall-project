@@ -1,13 +1,11 @@
 package com.qiangzengy.mall.ware.controller;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import com.qiangzengy.common.enums.ExceptionCode;
 import com.qiangzengy.mall.ware.entity.vo.FareVo;
-import com.qiangzengy.mall.ware.entity.vo.LockStockResult;
 import com.qiangzengy.mall.ware.entity.vo.SkuHasStockVo;
 import com.qiangzengy.mall.ware.entity.vo.WareSkuLockVo;
 import com.qiangzengy.mall.ware.exception.NoStockException;
@@ -19,7 +17,6 @@ import com.qiangzengy.mall.ware.service.WareSkuService;
 import com.qiangzengy.common.utils.PageUtils;
 import com.qiangzengy.common.utils.R;
 
-import javax.security.auth.message.callback.SecretKeyCallback;
 
 
 /**

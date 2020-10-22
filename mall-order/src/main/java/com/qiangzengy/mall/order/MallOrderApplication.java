@@ -54,6 +54,17 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients("com.qiangzengy.mall.order.feign")
 public class MallOrderApplication {
 
+    /**
+     *
+     * 1.下单流程
+     *
+     * 判断用户是否登录，没有登录则去登录，登录了则进行下单操作，判断商品库存是否够，选择收获地址，是否金币抵扣，创建订单，支付订单
+     *
+     *
+     *
+     *
+     */
+
     public static void main(String[] args) {
         SpringApplication.run(MallOrderApplication.class, args);
     }

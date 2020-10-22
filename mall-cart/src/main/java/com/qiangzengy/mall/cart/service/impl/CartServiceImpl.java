@@ -141,12 +141,11 @@ public class CartServiceImpl implements CartService {
         BoundHashOperations<String, Object, Object> operations=redisTemplate.boundHashOps(key);
         List<Object> values = operations.values();
         if (values!=null&& values.size()>0){
-            List<CartItem> collect = values.stream().map(obj -> {
+            return values.stream().map(obj -> {
                 String str = (String) obj;
                 JSON.parseObject(str, CartItem.class);
                 return new CartItem();
             }).collect(Collectors.toList());
-            return collect;
         }
         return null;
     }
@@ -168,8 +167,7 @@ public class CartServiceImpl implements CartService {
             cartKey= CartConstant.CART_PREFIX+userInfoTo.getUserKey();
         }
         //取到操作的购物车
-        BoundHashOperations<String, Object, Object> operations = redisTemplate.boundHashOps(cartKey);
-        return operations;
+        return redisTemplate.boundHashOps(cartKey);
     }
 
 
@@ -205,7 +203,8 @@ public class CartServiceImpl implements CartService {
         List<CartItem> cartItems = getCartItems(key);
 
         //只需要选中的购物项
-        List<CartItem> collect = cartItems.stream().filter(item -> item.getChec())
+        assert cartItems != null;
+        return cartItems.stream().filter(CartItem::getChec)
                 .map(item -> {
                     //查询商品服务，商品的价格
                     R r = productFeignService.info(item.getSkuId());
@@ -215,6 +214,5 @@ public class CartServiceImpl implements CartService {
                     return item;
                 })
                 .collect(Collectors.toList());
-        return collect;
     }
 }
