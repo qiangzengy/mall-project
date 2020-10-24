@@ -52,6 +52,7 @@ public class CartInterceptor implements HandlerInterceptor {
         Cookie[] cookies = request.getCookies();
         if (cookies!=null&&cookies.length>0){
             for (Cookie cookie : cookies) {
+                //获取cookie名字
                 String name = cookie.getName();
                 if (name.equals(CartConstant.TEMP_USER_COOKIE_NAME)){
                     userInfoTo.setUserKey(cookie.getValue());
@@ -83,7 +84,9 @@ public class CartInterceptor implements HandlerInterceptor {
         UserInfoTo userInfoTo = threadLocal.get();
         if (!userInfoTo.isTempUser()){
             Cookie cookie = new Cookie(CartConstant.TEMP_USER_COOKIE_NAME,userInfoTo.getUserKey());
+            //作用域
             cookie.setDomain("gulimall.com");
+            //设置过期时间
             cookie.setMaxAge(CartConstant.TEMP_USER_COOKIE_EX_TIME);
             response.addCookie(cookie);
         }

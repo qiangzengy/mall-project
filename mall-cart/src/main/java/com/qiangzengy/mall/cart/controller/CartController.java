@@ -56,10 +56,11 @@ public class CartController {
      * 添加商品到购物车
      */
     @PostMapping("/addToCart")
-    public String addToCart(@RequestParam("skuId") Long skuId, @RequestParam("num") Integer num, RedirectAttributes redire) throws ExecutionException, InterruptedException {
+    public String addToCart(@RequestParam("skuId") Long skuId, @RequestParam("num") Integer num, RedirectAttributes redirect) throws ExecutionException, InterruptedException {
 
-        cartService.addToCart(skuId,num);
-        redire.addAttribute("skuId",skuId);
+        cartService.addToCart(skuId, num);
+        //重定向携带数据
+        redirect.addAttribute("skuId",skuId);
         //需要重定向到success页，避免刷新重复提交的问题
         return "redirect:http://cart.gulimall.com/cartSuccess.html";
 
@@ -73,6 +74,7 @@ public class CartController {
      */
     @GetMapping("/cartSuccess.html")
     public String addToCartSuccess(@RequestParam("skuId") Long skuId,Model model){
+        //重定向到成功页面，然后在重新查一次数据
         CartItem item=cartService.getCartItem(skuId);
         model.addAttribute("item",item);
         return "success";

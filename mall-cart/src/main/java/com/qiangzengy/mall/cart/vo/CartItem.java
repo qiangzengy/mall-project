@@ -5,21 +5,25 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * 购物项内容
+ * 购物车商品属性
  */
 public class CartItem {
 
+    //商品id
     private Long skuId;
     //是否选中
     private Boolean chec=true;
+    //标题
     private String title;
+    //图片
     private String image;
-    //商品属性
+    //商品属性，黑色、64G
     private List<String>skuAttr;
+    //价格
     private BigDecimal price;
     //数量
     private Integer count;
-    //总价格
+    //总价格，动态计算
     private BigDecimal totalPrice;
 
 

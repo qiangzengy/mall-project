@@ -1,6 +1,7 @@
 package com.qiangzengy.mall.cart.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.qiangzengy.common.constant.CartConstant;
 import com.qiangzengy.common.utils.R;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -49,33 +51,46 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartItem addToCart(Long skuId, Integer num) throws ExecutionException, InterruptedException {
 
-        //获取购物数据
+        //获取购物车数据
         BoundHashOperations<String, Object, Object>operations=getCartOps();
-        //远程查询当前要添加的商品信息
-        CartItem cartItem=new CartItem();
-        CompletableFuture<Void> skuInfoFuture = CompletableFuture.runAsync(() -> {
-            R r = productFeignService.info(skuId);
-            SkuInfoVo skuInfo = r.getData("skuInfo", new TypeReference<SkuInfoVo>() {
-            });
-            //将商品添加到购物车
-            cartItem.setSkuId(skuInfo.getSkuId());
-            cartItem.setCount(num);
-            cartItem.setChec(true);
-            cartItem.setIamge(skuInfo.getSkuDefaultImg());
-            cartItem.setTitle(skuInfo.getSkuTitle());
-            cartItem.setPrice(skuInfo.getPrice());
-        }, executor);
+        //如果购物车有当前商品，只需要修改商品数量即可
+        String str=(String) operations.get(skuId.toString());
+        if (StringUtils.isEmpty(str)){
+            CartItem cartItem=new CartItem();
 
-        CompletableFuture<Void> attrFuture = CompletableFuture.runAsync(() -> {
-            //远程查询sku的组合信息
-            List<String> stringList = productFeignService.getSkuSaleAttrValues(skuId);
-            cartItem.setSkuAttr(stringList);
-        }, executor);
+            //远程查询当前要添加的商品信息
+            CompletableFuture<Void> skuInfoFuture = CompletableFuture.runAsync(() -> {
+                //商品信息
+                R r = productFeignService.info(skuId);
+                SkuInfoVo skuInfo = r.getData("skuInfo", new TypeReference<SkuInfoVo>() {
+                });
+                //将商品添加到购物车
+                cartItem.setSkuId(skuInfo.getSkuId());
+                cartItem.setCount(num);
+                cartItem.setChec(true);
+                cartItem.setIamge(skuInfo.getSkuDefaultImg());
+                cartItem.setTitle(skuInfo.getSkuTitle());
+                cartItem.setPrice(skuInfo.getPrice());
+            }, executor);
 
-        CompletableFuture.allOf(skuInfoFuture,attrFuture).get();
+            CompletableFuture<Void> attrFuture = CompletableFuture.runAsync(() -> {
+                //远程查询sku的组合信息
+                List<String> stringList = productFeignService.getSkuSaleAttrValues(skuId);
+                cartItem.setSkuAttr(stringList);
+            }, executor);
 
-        operations.put(skuId.toString(), JSON.toJSONString(cartItem));
-        return cartItem;
+            CompletableFuture.allOf(skuInfoFuture,attrFuture).get();
+            //将商品加入购物车
+            operations.put(skuId.toString(), JSON.toJSONString(cartItem));
+            return cartItem;
+        }else {
+            //有该商品，修改商品数量
+            CartItem cartItem= JSON.parseObject(str, CartItem.class);
+            cartItem.setCount(cartItem.getCount()+num);
+            operations.put(cartItem.getSkuId(), JSON.toJSONString(cartItem));
+            return cartItem;
+        }
+
     }
 
 
@@ -89,6 +104,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart getCart() throws ExecutionException, InterruptedException {
+        // 获取用户信息，从ThreadLocal中获取
         UserInfoTo userInfoTo = CartInterceptor.threadLocal.get();
         Cart cart=new Cart();
         if (userInfoTo.getUserId()!=null){
@@ -138,6 +154,9 @@ public class CartServiceImpl implements CartService {
      * @return
      */
     private List<CartItem> getCartItems( String key) {
+        //获取购物车里面的商品信息
+        //Object o = redisTemplate.opsForHash().get("cart", "skuId");
+        //获取购物车信息
         BoundHashOperations<String, Object, Object> operations=redisTemplate.boundHashOps(key);
         List<Object> values = operations.values();
         if (values!=null&& values.size()>0){

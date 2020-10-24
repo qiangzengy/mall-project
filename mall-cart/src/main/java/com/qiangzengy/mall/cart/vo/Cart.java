@@ -1,17 +1,16 @@
 package com.qiangzengy.mall.cart.vo;
 
-import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 /**
  * 购物车内容
- * 需要计算的属性，必须重新get方法
+ * 需要计算的属性，重写get方法
  */
-@Data
 public class Cart {
 
+    //购物车商品
     private List<CartItem> items;
     //商品数量
     private Integer countNum;

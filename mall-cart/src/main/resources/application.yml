@@ -13,9 +13,11 @@ spring:
         server-addr: 127.0.0.1:8848
   thymeleaf:
     cache: false
+#将购物车信息可以单独放入一个人redis
   redis:
     host: 192.168.1.118
     port: 6379
-#spring session
+    database: 1
+  #spring session
   session:
     store-type: redis
