@@ -15,15 +15,33 @@ import java.util.Map;
 public class MyMQConfig {
 
 
-//    /**
-//     * 监听消息
-//     *
-//     * queues：声明监听的Queue
-//     */
-//    @RabbitListener(queues = "hello-word-queue")
-//    void listenerMessage(Message  message){
-//        System.out.println("监听的消息:"+message);
-//    }
+
+
+    /**
+     * 监听消息
+     *
+     * queues：声明监听的所有的Queue
+     *
+     * Queue可以很多人都来监听，只要收到消息，队列删除消息，而且只能有一个收到此消息
+     *
+     *    1。同一个消息只能有一个客户端收到
+     *    2。只有一个消息处理完，才能接收下一个消息
+     */
+    @RabbitListener(queues = "hello-word-queue")
+    void listenerMessage(Message  message,Channel channel){
+
+        System.out.println("监听的消息:"+message);
+
+
+        //手动ack
+        //void basicAck(long deliveryTag, boolean multiple) throws IOException;
+        long deliveryTag = message.getMessageProperties().getDeliveryTag();
+        try {
+            channel.basicAck(deliveryTag,false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @RabbitListener(queues = "order.release.order.queue")
     public void listenerQueue(OrderEntity orderEntity, Channel channel, Message message) throws IOException {

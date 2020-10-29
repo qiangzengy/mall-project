@@ -71,7 +71,11 @@ class MallOrderApplicationTests {
      */
     @Test
     void sendMessage(){
-        rabbitTemplate.convertAndSend("hello-word-exchange","hello-word","hello world");
+
+        for (int i=0;i<10;i++){
+            rabbitTemplate.convertAndSend("hello-word-exchange","hello-word","hello world"+i);
+
+        }
     }
 
 

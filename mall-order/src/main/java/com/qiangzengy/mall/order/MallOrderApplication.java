@@ -21,7 +21,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  *
  * 4、@Enablerabb1: @EnabLeXxxXX;开启功能
  *
- * 5、监听消息:使用 @Rabbitlistener；必须有@EnableRabbit
+ * 5、监听消息:使用 @Rabbitlistener作用在类+方法上；必须有@EnableRabbit，
+ *   *            @RabbitHandler作用在方法上（重载区分不同的消息）
+ *
  *
  *
  * 接口幂等性问题：
