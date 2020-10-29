@@ -15,6 +15,16 @@ import java.util.Map;
 public class MyMQConfig {
 
 
+//    /**
+//     * 监听消息
+//     *
+//     * queues：声明监听的Queue
+//     */
+//    @RabbitListener(queues = "hello-word-queue")
+//    void listenerMessage(Message  message){
+//        System.out.println("监听的消息:"+message);
+//    }
+
     @RabbitListener(queues = "order.release.order.queue")
     public void listenerQueue(OrderEntity orderEntity, Channel channel, Message message) throws IOException {
         System.out.println("监听成功。。。。。。。。;订单ID："+orderEntity.getOrderSn());
