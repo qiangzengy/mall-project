@@ -133,6 +133,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             //每一个线程都共享之前的数据
             RequestContextHolder.setRequestAttributes(requestAttributes);
             //远程查询购物项
+            /*
+            这里存在一个问题（feign远程调用会丢失请求头）
+            分析：feign在远程调用，会构造一个新请求，这个请求是个空的
+            解决：加上feign远程调用请求拦截器 ，MallFeignConfig
+             */
             List<OrderItemVo> items = cartFeignService.getCurrentUserCartItems();
             confirmVo.setItemVos(items);
         }, executor).thenRunAsync(()->{

@@ -211,6 +211,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<CartItem> getCurrentCartItems() {
+        //获取用户信息
         UserInfoTo userInfoTo = CartInterceptor.threadLocal.get();
         if (userInfoTo==null){
             return null;
@@ -221,9 +222,11 @@ public class CartServiceImpl implements CartService {
         //所有购物项
         List<CartItem> cartItems = getCartItems(key);
 
-        //只需要选中的购物项
+
         assert cartItems != null;
-        return cartItems.stream().filter(CartItem::getChec)
+        return cartItems.stream()
+                //只需要选中的购物项
+                .filter(CartItem::getChec)
                 .map(item -> {
                     //查询商品服务，商品的价格
                     R r = productFeignService.info(item.getSkuId());

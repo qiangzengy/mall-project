@@ -22,12 +22,11 @@ public class MallFeignConfig {
         return requestTemplate -> {
             //RequestContextHolder可以拿到刚进来的请求数据
             ServletRequestAttributes attributes= (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            assert attributes != null;
             HttpServletRequest request = attributes.getRequest();
-            if(request!=null){
-                //同步请求头数据
-                requestTemplate.header("Cookie",request.getHeader("Cookie"));
+            //同步请求头数据
+            requestTemplate.header("Cookie",request.getHeader("Cookie"));
 
-            }
         };
     }
 }
