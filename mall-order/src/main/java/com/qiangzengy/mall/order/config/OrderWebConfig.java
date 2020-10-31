@@ -18,11 +18,12 @@ public class OrderWebConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        /*
-         * 所有请求都要用拦截器进行拦截
-         * addPathPatterns("/**")
-         */
-        registry.addInterceptor(loginUserInterceptor).addPathPatterns("/**");
+
+
+        //添加拦截器
+        registry.addInterceptor(loginUserInterceptor)
+                //所有请求都要用拦截器进行拦截
+                .addPathPatterns("/**");
 
     }
 }

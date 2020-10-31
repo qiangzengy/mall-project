@@ -41,8 +41,10 @@ public class LoginUserInterceptor implements HandlerInterceptor {
          */
 
         //1.获取登陆用户
-        Object attribute = request.getSession().getAttribute(AuthConstant.LOGIN_USER);
+        MemberResVo attribute = (MemberResVo) request.getSession().getAttribute(AuthConstant.LOGIN_USER);
         if(attribute!=null){
+            //将用户信息set到ThreadLocal中
+            loginUser.set(attribute);
             return true;
         }else {
             //没有登陆，就重定向到登陆页面
