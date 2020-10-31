@@ -114,7 +114,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         OrderConfirmVo confirmVo=new OrderConfirmVo();
         //从登陆拦截器获取当前用户
         MemberResVo memberResVo = LoginUserInterceptor.loginUser.get();
-        /**
+        /*
          * 这里使用异步编排，会出现丢失上下文的问题，因为不是同一个线程执行任务
          * 解决：1。getRequestAttributes 先获取请求信息
          *      2。setRequestAttributes 将请求信息set到异步编排的线程里
