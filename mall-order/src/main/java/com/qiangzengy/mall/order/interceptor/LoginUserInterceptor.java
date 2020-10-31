@@ -16,6 +16,7 @@ public class LoginUserInterceptor implements HandlerInterceptor {
 
 
     /**
+     * 拦截器：
      * 目标请求到达之前做一个前置拦截
      * @param request
      * @param response

@@ -13,12 +13,12 @@ public class OrderWebConfig implements WebMvcConfigurer {
     private LoginUserInterceptor loginUserInterceptor;
 
     /**
-     * 添加拦截器
+     * 添加拦截器，让LoginUsetInterceptors起作用
      * @param registry
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        /**
+        /*
          * 所有请求都要用拦截器进行拦截
          * addPathPatterns("/**")
          */

@@ -17,7 +17,7 @@ import javax.annotation.PostConstruct;
  */
 
 @Configuration
-public class MyRabbitMQ {
+public class MyRabbitMQConfig {
 
 
     @Autowired
@@ -56,7 +56,7 @@ public class MyRabbitMQ {
             }
         });*/
 
-        /**
+        /*
          *
          * 只要消息抵达Broker，ack就是true
          * correlationData ：当前消息的唯一关联数据（消息的唯一id）
