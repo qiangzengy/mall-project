@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 public class LoginUserInterceptor implements HandlerInterceptor {
 
-    public static ThreadLocal<MemberResVo> loginUser=new ThreadLocal();
+    public static ThreadLocal<MemberResVo> loginUser= new ThreadLocal<>();
 
 
     /**

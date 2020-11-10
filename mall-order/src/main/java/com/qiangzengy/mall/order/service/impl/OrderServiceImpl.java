@@ -187,6 +187,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
          */
         String script="if redis.call('get', KEYS[1])==ARGV[1]then return redis.call('del', KEYS[1])else return O end";
         String pageToken=orderVo.getOrderToken();
+        //原子操作
         Long execute = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class),
                 Collections.singletonList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberResVo.getId()), pageToken);
         assert execute != null;
@@ -276,9 +277,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         BigDecimal compu=new BigDecimal("0");
         BigDecimal integ=new BigDecimal("0");
         BigDecimal promo=new BigDecimal("0");
-        Integer gigtG=0;
-        Integer gigtI=0;
-
+        int gigtG=0;
+        int gigtI=0;
 
         for (OrderItemEntity orderItemEntity : orderItemEntities) {
             totalP=totalP.add(orderItemEntity.getSkuPrice());
