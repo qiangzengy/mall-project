@@ -2,10 +2,14 @@ package com.qiangzengy.mall.order;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * 使用 RabbitMQ
@@ -47,13 +51,25 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * 致,高并发下,都get到同样的数据,判断都成功,继续业务并发执行
  * (2)可以在 redis使用lua脚本完成这个操作
  *   if redis call('get, KEYS(1])==ARGV[1]then return redis call('del, KEYS(1))else return O end
+ *
+ *   本地事务失效问题：
+ *      同一个对象内事务方法互调默认失效，原因：绕过了代理对象，事务是使用代理对象来控制的
+ *    解决方案：使用代理对象来调用事务
+ *       1，引入spring-boot-starter-aop，(AspectJAutoProxy)
+ *       2，@EnableAspectJAutoProxy 开启aspectj动态代理功能，以后所有的动态代理都是它创建的，不是jdk创建的。（好处：即使没有接口也可以创建动态代理）
+ *       (exposeProxy = true) 对外暴露代理对象
+ *       3，本类互调用代理对象
+ *               OrderServiceImpl o = (OrderServiceImpl)AopContext.currentProxy();
+ *               o.b();
  */
+
 
 @EnableDiscoveryClient
 @SpringBootApplication
 @EnableRabbit
 @MapperScan("com.qiangzengy.mall.order.dao")
 @EnableFeignClients("com.qiangzengy.mall.order.feign")
+@EnableAspectJAutoProxy(exposeProxy = true)
 public class MallOrderApplication {
 
     /**

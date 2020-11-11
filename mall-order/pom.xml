@@ -64,6 +64,12 @@
             </exclusions>
         </dependency>
 
+        <!-- 动态代理，解决本地事务失效问题-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
         <!-- jedis 客户端-->
         <dependency>
             <groupId>redis.clients</groupId>
