@@ -172,7 +172,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Override
     @Transactional
-    //@GlobalTransactional// seata分布式事务
+    //@GlobalTransactional  // 开启全局事务
     public OrderSubmitRespVo submitOrder(OrderSubmitVo orderVo) {
         submitVo.set(orderVo);
         OrderSubmitRespVo respVo=new OrderSubmitRespVo();

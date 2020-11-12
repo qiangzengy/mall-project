@@ -69,7 +69,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @EnableRabbit
 @MapperScan("com.qiangzengy.mall.order.dao")
 @EnableFeignClients("com.qiangzengy.mall.order.feign")
-@EnableAspectJAutoProxy(exposeProxy = true)
+//@EnableAspectJAutoProxy(exposeProxy = true)
 public class MallOrderApplication {
 
     /**
