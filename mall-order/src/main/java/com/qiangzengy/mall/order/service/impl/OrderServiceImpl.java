@@ -59,9 +59,8 @@ import org.springframework.web.context.request.RequestContextHolder;
  * 4、每个数服务,都必须导入
  *     registry. conf
  *     file.conf vgroup_mapping.gulimall-ware-fescar-service-group ="default"
- * 5,启动测试
- * 6、给分布式大事务的入口标注 @GlobalTransactional
- * 7、每一个远程的小事务用    @Transactional
+ * 5、给分布式大事务的入口标注 @GlobalTransactional
+ * 6、每一个远程的小事务用    @Transactional
  */
 
 @Service("orderService")
@@ -408,8 +407,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
         //1.查询订单的状态,待付款，才可以关闭
         OrderEntity orderEntity = baseMapper.selectById(entity.getId());
-        if(orderEntity.getStatus()==OrderStatusEnum.CREATE_NEW.getCode()){
-
+        if(orderEntity.getStatus().equals(OrderStatusEnum.CREATE_NEW.getCode())){
             OrderEntity update = new OrderEntity();
             update.setId(entity.getId());
             update.setStatus(OrderStatusEnum.CANCLED.getCode());
