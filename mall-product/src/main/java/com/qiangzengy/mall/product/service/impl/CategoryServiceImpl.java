@@ -39,7 +39,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     private CategoryBrandRelationService categoryBrandRelationService;
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String,Object> redisTemplate;
 
     @Autowired
     private RedissonClient redissonClient;
@@ -152,7 +152,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
 
     /**
-     * @Cacheable注解：代表当前方法的结果需要缓存，如果缓存有，方法不调用。 如果缓存没有，会调用方法，最后将方法数据放入缓存。
+     * Cacheable注解：代表当前方法的结果需要缓存，如果缓存有，方法不调用。 如果缓存没有，会调用方法，最后将方法数据放入缓存。
      * 每一个需要缓存的数据，需要指定名字(缓存分区，可以按照业务类型分)
      * 自定义：
      * 1。指定生成缓存的key,可以使用方法名作为key（"#root.method.name"）
@@ -176,9 +176,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     @Cacheable(value = {"category"}, key = "#root.method.name")
     @Override
     public List<CategoryEntity> getLevel1Category() {
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("parent_cid", 0);
-        return baseMapper.selectList(queryWrapper);
+        return baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
     }
 
 
@@ -207,9 +205,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             return stringListMap;
         }
 
-        Map<String, List<Catalog2Vo>> result = JSON.parseObject(data, new TypeReference<Map<String, List<Catalog2Vo>>>() {
-        });
-        return result;
+        return JSON.parseObject(data, new TypeReference<Map<String, List<Catalog2Vo>>>() {});
 
     }
 
@@ -270,8 +266,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         //加锁
         rLock.lock();
         try {
-            Map<String, List<Catalog2Vo>> data = getDataFromDb();
-            return data;
+            return getDataFromDb();
         } finally {
             //解锁
             rLock.unlock();
@@ -303,8 +298,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
              *  //redisTemplate.expire("lock",30, TimeUnit.SECONDS);
              */
             try {
-                Map<String, List<Catalog2Vo>> data = getDataFromDb();
-                return data;
+                return getDataFromDb();
             } finally {
                 /**
                  * 方案1：

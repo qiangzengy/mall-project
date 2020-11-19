@@ -15,6 +15,11 @@
         <module>mall-order</module>
         <module>mall-product</module>
         <module>mall-ware</module>
+        <module>mall-auth</module>
+        <module>mall-gateway</module>
+        <module>mall-third-party</module>
+        <module>mall-cart</module>
+        <module>mall-es</module>
         <module>renren-fast</module>
         <module>mall-common</module>
     </modules>
