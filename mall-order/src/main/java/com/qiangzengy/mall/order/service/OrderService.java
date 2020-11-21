@@ -6,6 +6,7 @@ import com.qiangzengy.mall.order.entity.OrderEntity;
 import com.qiangzengy.mall.order.vo.OrderConfirmVo;
 import com.qiangzengy.mall.order.vo.OrderSubmitRespVo;
 import com.qiangzengy.mall.order.vo.OrderSubmitVo;
+import com.qiangzengy.mall.order.vo.PayVo;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -28,5 +29,7 @@ public interface OrderService extends IService<OrderEntity> {
     Integer getStatusByOrderSn(String orderSn);
 
     void closeOrder(OrderEntity entity);
+
+    PayVo getOrderPay(String orderSn);
 }
 

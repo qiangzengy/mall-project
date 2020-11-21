@@ -30,6 +30,8 @@ import com.qiangzengy.mall.product.entity.CategoryEntity;
 import com.qiangzengy.mall.product.service.CategoryService;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+
 
 @Service("categoryService")
 @Slf4j
@@ -38,7 +40,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
 
-    @Autowired
+    @Resource
     private RedisTemplate<String,Object> redisTemplate;
 
     @Autowired
@@ -352,9 +354,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         String data = (String) redisTemplate.opsForValue().get("catalogJson");
         //缓存不为null
         if (StringUtils.isNotEmpty(data)) {
-            Map<String, List<Catalog2Vo>> result = JSON.parseObject(data, new TypeReference<Map<String, List<Catalog2Vo>>>() {
-            });
-            return result;
+            return JSON.parseObject(data, new TypeReference<Map<String, List<Catalog2Vo>>>() {});
+
         }
         //优化，一次性查出数据库所有的数据，有所需要的数据，直接从entityList中获取,减少数据库查询次数
         List<CategoryEntity> entityList = baseMapper.selectList(null);

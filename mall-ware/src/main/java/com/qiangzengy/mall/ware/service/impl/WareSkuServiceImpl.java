@@ -260,6 +260,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         String orderSn = orderTo.getOrderSn();
         WareOrderTaskEntity entity = wareOrderTaskService.getTaskByOrderSn(orderSn);
         Long taskId = entity.getId();
+        //查找没有解锁的库存
         List<WareOrderTaskDetailEntity> list = wareOrderTaskDetailService.list(new QueryWrapper<WareOrderTaskDetailEntity>().eq("task_id", taskId).eq("lock_status", 1));
         for (WareOrderTaskDetailEntity detail : list) {
             wareSkuDao.unLockStock(detail.getSkuId(), detail.getWareId(), detail.getSkuNum());

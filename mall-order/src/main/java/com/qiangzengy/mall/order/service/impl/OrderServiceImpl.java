@@ -177,6 +177,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         OrderSubmitRespVo respVo=new OrderSubmitRespVo();
         respVo.setCode(0);
         MemberResVo memberResVo = LoginUserInterceptor.loginUser.get();
+
+
         //下单：验证令牌->创建订单->校验价格->锁库存
 
         //验证令牌，原子性
@@ -403,7 +405,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
      * @param entity
      */
     @Override
-    public void closeOrder(OrderEntity entity) {
+    public void   closeOrder(OrderEntity entity) {
 
         //1.查询订单的状态,待付款，才可以关闭
         OrderEntity orderEntity = baseMapper.selectById(entity.getId());
@@ -439,5 +441,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             rabbitTemplate.convertAndSend("order-event-exchange","order.release.other",orderTo);
 
         }
+    }
+
+
+    @Override
+    public PayVo getOrderPay(String orderSn) {
+        OrderEntity order = this.getOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
+        PayVo payVo=new PayVo();
+        payVo.setOut_trade_no(orderSn);
+        payVo.setTotal_amount(order.getPayAmount().stripTrailingZeros().toPlainString());
+        List<OrderItemEntity> orderItemEntities = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", orderSn));
+        payVo.setSubject(orderItemEntities.get(0).getSkuName());
+        return payVo;
     }
 }

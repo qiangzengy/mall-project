@@ -1,8 +1,7 @@
-package com.qiangzengy.mall.order.interceptor;
+package com.qiangzengy.mall.member.interceptor;
 
 import com.qiangzengy.common.constant.AuthConstant;
 import com.qiangzengy.common.vo.MemberRespVo;
-import com.qiangzengy.mall.order.vo.MemberResVo;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.HandlerInterceptor;

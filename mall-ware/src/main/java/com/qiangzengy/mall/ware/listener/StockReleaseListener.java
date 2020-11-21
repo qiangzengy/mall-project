@@ -1,4 +1,4 @@
-package com.qiangzengy.mall.ware.mq;
+package com.qiangzengy.mall.ware.listener;
 
 import com.qiangzengy.common.to.mq.OrderEntityTo;
 import com.qiangzengy.common.to.mq.StockLockTo;
@@ -14,7 +14,7 @@ import java.io.IOException;
 
 @Component
 @RabbitListener(queues = "stock.release.stock.queue")
-public class MQListener {
+public class StockReleaseListener {
 
     /**
      * 保持最终一致性

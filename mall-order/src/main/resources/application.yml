@@ -14,6 +14,11 @@ spring:
     name: mall-order
   thymeleaf:
     cache: false
+  redis:
+    host: 192.168.1.118
+    port: 6379
+    session:
+      store-type: redis
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   global-config:
