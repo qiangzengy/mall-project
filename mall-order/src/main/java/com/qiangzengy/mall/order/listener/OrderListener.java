@@ -26,6 +26,7 @@ public class OrderListener {
         try {
             orderService.closeOrder(entity);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+            //TODO 支付宝手动收单
         }catch (Exception e){
 
             channel.basicReject(message.getMessageProperties().getDeliveryTag(),true);

@@ -35,6 +35,9 @@ public class AlipayTemplate {
     // 字符编码格式
     private  String charset;
 
+    //订单超时时间
+    private String timeOut;
+
     // 支付宝网关； https://openapi.alipaydev.com/gateway.do
     private  String gatewayUrl;
 
@@ -64,6 +67,7 @@ public class AlipayTemplate {
                 + "\"total_amount\":\""+ total_amount +"\","
                 + "\"subject\":\""+ subject +"\","
                 + "\"body\":\""+ body +"\","
+                + "\"timeout_express\":\""+ timeOut +"\","
                 + "\"product_code\":\"FAST_INSTANT_TRADE_PAY\"}");
 
         String result = alipayClient.pageExecute(alipayRequest).getBody();
