@@ -13,6 +13,7 @@
         <module>mall-coupon</module>
         <module>mall-member</module>
         <module>mall-order</module>
+        <module>mall-miaosha</module>
         <module>mall-product</module>
         <module>mall-ware</module>
         <module>mall-auth</module>
