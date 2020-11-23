@@ -4,9 +4,7 @@ package com.qiangzengy.mall.thirdparty.controller;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.common.utils.BinaryUtil;
-import com.aliyun.oss.model.GeneratePresignedUrlRequest;
-import com.aliyun.oss.model.MatchMode;
-import com.aliyun.oss.model.PolicyConditions;
+import com.aliyun.oss.model.*;
 import com.qiangzengy.common.utils.R;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -101,10 +99,13 @@ public class OssUploadController {
             ossClient.putObject(bucket, fileName, inputStream);
             //加签名处理
             // 指定过期时间为1年。
-            Date expiration = new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365 );
+            //Date expiration = new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 365 );
+            Date expiration = new Date(new Date().getTime() + 1000 * 5 );
             GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(bucket, fileName);
             req.setExpiration(expiration);
             URL signedUrl = ossClient.generatePresignedUrl(req);
+            //不需要签名
+            //String url="http://"+bucket+"."+endpoint+"/"+fileName;
             return R.ok().put("data",String.valueOf(signedUrl));
         } catch (Exception e) {
             e.printStackTrace();
