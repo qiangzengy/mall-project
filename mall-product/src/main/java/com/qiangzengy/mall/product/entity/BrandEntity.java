@@ -4,13 +4,12 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import com.qiangzengy.common.valid.AddGroup;
 import com.qiangzengy.common.valid.ListValue;
 import com.qiangzengy.common.valid.UpdateGroup;
 import lombok.Data;
-import org.hibernate.validator.constraints.URL;
+//import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.*;
 
@@ -44,7 +43,7 @@ public class BrandEntity implements Serializable {
 	 * 品牌logo地址
 	 */
 	@NotBlank(groups = {AddGroup.class})
-	@URL(message = "必须是url",groups = {AddGroup.class,UpdateGroup.class})
+	//@URL(message = "必须是url",groups = {AddGroup.class,UpdateGroup.class})
 	private String logo;
 	/**
 	 * 介绍

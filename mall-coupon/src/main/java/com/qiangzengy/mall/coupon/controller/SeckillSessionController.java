@@ -24,6 +24,7 @@ import com.qiangzengy.common.utils.R;
 @RestController
 @RequestMapping("coupon/seckillsession")
 public class SeckillSessionController {
+
     @Autowired
     private SeckillSessionService seckillSessionService;
 
@@ -83,6 +84,10 @@ public class SeckillSessionController {
         return R.ok();
     }
 
+    /**
+     * 获取最近3天的秒杀活动
+     * @return
+     */
     @GetMapping("/getLates3Day")
     public R getLates3Day(){
         List<SeckillSessionEntity> list=seckillSessionService.getLates3Day();

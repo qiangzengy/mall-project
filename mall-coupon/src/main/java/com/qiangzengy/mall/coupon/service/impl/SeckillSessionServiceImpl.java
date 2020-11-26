@@ -43,7 +43,7 @@ public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionDao, Se
 
     @Override
     public List<SeckillSessionEntity> getLates3Day() {
-
+        // 获取当前时间 yy:MM:dd
         LocalDate startDay=LocalDate.now();
         // 获取3天后的时间 yy:MM:dd
         LocalDate endDay = startDay.plusDays(2);
@@ -51,14 +51,15 @@ public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionDao, Se
         LocalTime endTime=LocalTime.MAX;
         LocalDateTime startOf = LocalDateTime.of(startDay, startTime);
         LocalDateTime endOf = LocalDateTime.of(endDay, endTime);
+        // 秒杀活动场次
         List<SeckillSessionEntity> list = this.list(new QueryWrapper<SeckillSessionEntity>().between("start_time", startOf.format(DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")), endOf.format(DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss"))));
         if (Objects.nonNull(list)){
-            list.stream().map((data) -> {
-                List<SeckillSkuRelationEntity> promotion_id = seckillSkuRelationService.list(new QueryWrapper<SeckillSkuRelationEntity>().eq("promotion_id", data.getId()));
+            return list.stream().map((data) -> {
+                // 秒杀活动商品
+                List<SeckillSkuRelationEntity> promotion_id = seckillSkuRelationService.list(new QueryWrapper<SeckillSkuRelationEntity>().eq("promotion_session_id", data.getId()));
                 data.setSeckillSkuRelationEntities(promotion_id);
                 return data;
             }).collect(Collectors.toList());
-            return list;
         }
         return null;
     }

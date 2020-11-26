@@ -49,9 +49,9 @@ public class SeckillSessionEntity implements Serializable {
 	private Date createTime;
 
 	/**
-	 * 活动关联的商品
+	 * 活动商品
 	 */
-	@TableField(exist = false )
+	@TableField(exist = false )//不是数据库字段
 	private List<SeckillSkuRelationEntity> seckillSkuRelationEntities;
 
 }

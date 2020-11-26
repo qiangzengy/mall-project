@@ -42,7 +42,7 @@ public class SpuInfoController {
     /**
      * 信息
      */
-    @RequestMapping("/info/{id}")
+    @GetMapping("/info/{id}")
     //@RequiresPermissions("product:spuinfo:info")
     public R info(@PathVariable("id") Long id){
 		SpuInfoEntity spuInfo = spuInfoService.getById(id);
@@ -52,7 +52,7 @@ public class SpuInfoController {
     /**
      * 保存
      */
-    @RequestMapping("/save")
+    @PostMapping("/save")
     //@RequiresPermissions("product:spuinfo:save")
     public R save(@RequestBody SpuSaveVo vo){
         spuInfoService.saveSpuInfo(vo);

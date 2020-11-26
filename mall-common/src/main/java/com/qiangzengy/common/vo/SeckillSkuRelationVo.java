@@ -6,7 +6,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-
+import java.util.Date;
 
 
 @Data
@@ -36,14 +36,21 @@ public class SeckillSkuRelationVo implements Serializable {
 	/**
 	 * 秒杀总量
 	 */
-	private BigDecimal seckillCount;
+	private Integer seckillCount;
 	/**
 	 * 每人限购数量
 	 */
-	private BigDecimal seckillLimit;
+	private Integer seckillLimit;
 	/**
 	 * 排序
 	 */
 	private Integer seckillSort;
+
+	/**
+	 * 商品的详细信息
+	 */
+	//private SeckillSkuInfoVo seckillSkuInfoVo;
+
+
 
 }

@@ -21,8 +21,8 @@ public class MiaoShaUPTask {
     /**
      * Scheduled 不支持年
      */
-    @Scheduled(cron = "* * * * * *")
-    @Async//异步执行
+    //@Scheduled(cron = "* * * * * *")
+    //@Async//异步执行
     public void upTask(){
         log.info("定时任务启动。。。。。");
     }
