@@ -32,7 +32,7 @@ public class SeckillTask {
     /**
      * 上架最近3天的秒杀信息
      */
-    @Scheduled(cron = "0 15 22 * * ?")
+    @Scheduled(cron = "0 23 22 * * ?")
     @Async
     public void seckillUpTask(){
         //幂等性处理，分布式锁

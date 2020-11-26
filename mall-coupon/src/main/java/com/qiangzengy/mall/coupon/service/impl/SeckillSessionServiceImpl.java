@@ -47,9 +47,8 @@ public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionDao, Se
         LocalDate startDay=LocalDate.now();
         // 获取3天后的时间 yy:MM:dd
         LocalDate endDay = startDay.plusDays(2);
-        LocalTime startTime=LocalTime.MIN;
         LocalTime endTime=LocalTime.MAX;
-        LocalDateTime startOf = LocalDateTime.of(startDay, startTime);
+        LocalDateTime startOf = LocalDateTime.now();
         LocalDateTime endOf = LocalDateTime.of(endDay, endTime);
         // 秒杀活动场次
         List<SeckillSessionEntity> list = this.list(new QueryWrapper<SeckillSessionEntity>().between("start_time", startOf.format(DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss")), endOf.format(DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss"))));
