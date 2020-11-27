@@ -138,6 +138,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             log.error("远程保存spu积分信息失败");
         }
 
+        //TODO 当前商品是否参加秒杀
 
         //5、保存当前spu对应的所有sku信息；
 

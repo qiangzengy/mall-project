@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -54,19 +55,17 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Override
     public void seckillGoodsUp() {
-        //扫描最近3天的秒杀活动
+        // 扫描最近3天的秒杀活动
         R lates3Day = couponFeignService.getLates3Day();
         if (lates3Day.getCode() == 0) {
             List<SeckillSessionVo> list = lates3Day.getData("data", new TypeReference<List<SeckillSessionVo>>() {
             });
-            //放入redis
-            //缓存活动信息
+            // 放入redis
+            // 缓存活动信息
             saveSessInfos(list);
-            //缓存活动的商品信息
+            // 缓存活动的商品信息
             saveSessionSkuInfos(list);
         }
-
-
     }
 
     private void saveSessInfos(List<SeckillSessionVo> list) {
@@ -80,8 +79,7 @@ public class SeckillServiceImpl implements SeckillService {
                 // 获取所有的商品id
                 List<String> collect = session.getSeckillSkuRelationEntities().stream().map(data -> data.getPromotionSessionId() + "_" + data.getSkuId()).collect(Collectors.toList());
                 // 从左边放
-                stringRedisTemplate.opsForList().leftPushAll(SESSION_PREFIX + key, collect);
-                //stringRedisTemplate.opsForValue().set(SESSION_PREFIX + key,JSON.toJSONString(collect));
+                stringRedisTemplate.opsForList().leftPushAll(SESSION_PREFIX + key);
                 log.info("缓存活动信息,key:{},data:{}",SESSION_PREFIX + key,collect);
             }
 
@@ -116,9 +114,9 @@ public class SeckillServiceImpl implements SeckillService {
                     operations.put(entity.getPromotionSessionId() + "_" + entity.getSkuId(), JSON.toJSONString(sessionRedisTo));
                     String key = operations.get(entity.getPromotionSessionId() + "_" + entity.getSkuId());
                     log.info("缓存活动的商品信息,key:{},data:{}",entity.getPromotionSessionId() + "_" + entity.getSkuId(),key);
-                    //得到redis信号量
+                    // 得到redis信号量
                     RSemaphore semaphore = redissonClient.getSemaphore(SKU_STOCK_SEMAPHORE + randomCode);
-                    //设置信号量,商品秒杀数量,限流
+                    // 设置信号量,商品秒杀数量,限流
                     semaphore.trySetPermits(entity.getSeckillCount());
                 }
 
@@ -149,6 +147,21 @@ public class SeckillServiceImpl implements SeckillService {
                     ).collect(Collectors.toList());
                 }
                 break;
+            }
+        }
+        return null;
+    }
+
+
+    @Override
+    public SessionRedisTo getSeckillSkus(Long skuId) {
+        BoundHashOperations<String, String, String> operations = stringRedisTemplate.boundHashOps(SESSION_ITEM);
+        Set<String> keys = operations.keys();
+        String reg="\\d_"+skuId;
+        for (String key : keys) {
+            if (Pattern.matches(reg, key)){
+                String s = operations.get(key);
+                return JSON.parseObject(s, SessionRedisTo.class);
             }
         }
         return null;

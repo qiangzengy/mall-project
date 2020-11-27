@@ -15,7 +15,7 @@ public class MyThreadConfig {
     @Bean
     public ThreadPoolExecutor threadPool(ThreadPoolConfigProperties properties){
 
-        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+        return new ThreadPoolExecutor(
                 properties.getCoreSize(),
                 properties.getMaxSize(),
                 properties.getKeepAliveTime(),
@@ -24,8 +24,6 @@ public class MyThreadConfig {
                 Executors.defaultThreadFactory(),
                 new ThreadPoolExecutor.AbortPolicy()
         );
-
-        return threadPoolExecutor;
 
     }
 

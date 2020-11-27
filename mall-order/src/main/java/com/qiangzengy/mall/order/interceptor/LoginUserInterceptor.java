@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 public class LoginUserInterceptor implements HandlerInterceptor {
 
-    public static ThreadLocal<MemberRespVo> loginUser= new ThreadLocal<>();
+    public static ThreadLocal<MemberResVo> loginUser= new ThreadLocal<>();
 
 
     /**
@@ -42,7 +42,7 @@ public class LoginUserInterceptor implements HandlerInterceptor {
          */
 
         //1.获取登陆用户
-        MemberRespVo attribute = (MemberRespVo) request.getSession().getAttribute(AuthConstant.LOGIN_USER);
+        MemberResVo attribute = (MemberResVo) request.getSession().getAttribute(AuthConstant.LOGIN_USER);
         if(attribute!=null){
             //将用户信息set到ThreadLocal中
             loginUser.set(attribute);

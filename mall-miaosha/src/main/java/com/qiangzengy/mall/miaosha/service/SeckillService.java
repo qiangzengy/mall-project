@@ -16,4 +16,6 @@ public interface SeckillService {
     void seckillGoodsUp();
 
     List<SessionRedisTo> getCurrentSeckillSkus();
+
+    SessionRedisTo getSeckillSkus(Long skuId);
 }
