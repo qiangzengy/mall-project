@@ -1,11 +1,15 @@
 package com.qiangzengy.mall.product.service.impl;
 
+import com.alibaba.fastjson.TypeReference;
 import com.qiangzengy.common.utils.Query;
+import com.qiangzengy.common.utils.R;
 import com.qiangzengy.mall.product.entity.SkuImagesEntity;
 import com.qiangzengy.mall.product.entity.SpuInfoDescEntity;
+import com.qiangzengy.mall.product.entity.vo.SessionSkuInfoVo;
 import com.qiangzengy.mall.product.entity.vo.SkuItemSalaAttrVo;
 import com.qiangzengy.mall.product.entity.vo.SkuItemVo;
 import com.qiangzengy.mall.product.entity.vo.SpuItemAttrGroupVo;
+import com.qiangzengy.mall.product.feign.SeckillFeignService;
 import com.qiangzengy.mall.product.service.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +48,9 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
     @Autowired
     private ThreadPoolExecutor executor;
+
+    @Autowired
+    private SeckillFeignService seckillFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -149,8 +156,17 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
             List<SkuImagesEntity> images = imagesService.getSkuIdImage(skuId);
             itemVo.setImages(images);
         }, executor);
+        CompletableFuture<Void> sessionFuture = CompletableFuture.runAsync(() -> {
+            //当前商品是否参加秒杀
+            R seckillSkus = seckillFeignService.getSeckillSkus(skuId);
+            if (seckillSkus.getCode()==0){
+                SessionSkuInfoVo data = seckillSkus.getData("data", new TypeReference<SessionSkuInfoVo>() {
+                });
+                itemVo.setSessionSkuInfoVo(data);
+            }
+        }, executor);
         //等待所有任务都完成
-        CompletableFuture.allOf(descFuture, groupVosFuture, salaVosFuture, imagesFuture).get();
+        CompletableFuture.allOf(descFuture, groupVosFuture, salaVosFuture, imagesFuture,sessionFuture).get();
         return itemVo;
     }
 

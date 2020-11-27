@@ -161,7 +161,13 @@ public class SeckillServiceImpl implements SeckillService {
         for (String key : keys) {
             if (Pattern.matches(reg, key)){
                 String s = operations.get(key);
-                return JSON.parseObject(s, SessionRedisTo.class);
+                SessionRedisTo sessionRedisTo = JSON.parseObject(s, SessionRedisTo.class);
+                Long startTime = sessionRedisTo.getStartTime();
+                long time = new Date().getTime();
+                if (time<startTime){
+                    sessionRedisTo.setRandomCode(null);
+                }
+                return sessionRedisTo;
             }
         }
         return null;

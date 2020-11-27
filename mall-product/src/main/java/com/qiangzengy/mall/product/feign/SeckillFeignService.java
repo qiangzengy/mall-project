@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
  */
 
 @FeignClient("mall-miaosha")
-public interface SeckillService {
+public interface SeckillFeignService {
 
     @GetMapping("/seckill/current/skus/{skuId}")
     R getSeckillSkus(Long skuId);

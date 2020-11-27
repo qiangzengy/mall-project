@@ -22,6 +22,9 @@ public class SkuItemVo {
     //5。spu规格参数
     private List<SpuItemAttrGroupVo> groupVos;
 
+    //秒杀信息
+    private SessionSkuInfoVo sessionSkuInfoVo;
+
 
 }
 
