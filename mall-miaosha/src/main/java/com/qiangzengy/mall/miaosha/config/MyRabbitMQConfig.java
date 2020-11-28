@@ -1,8 +1,7 @@
-package com.qiangzengy.mall.order.config;
+package com.qiangzengy.mall.miaosha.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -59,7 +58,7 @@ public class MyRabbitMQConfig {
          */
         //设置确认回调
         rabbitTemplate.setConfirmCallback((correlationData, ack, cause) ->
-            log.info("订单信息，确认回调，cause:{}",cause)
+                log.info("秒杀信息，确认回调，cause:{}",cause)
         );
 
 
@@ -76,7 +75,8 @@ public class MyRabbitMQConfig {
              */
             @Override
             public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
-                log.info("订单信息，失败的消息：{}，exchange：{}",message,exchange);
+                log.info("秒杀信息，失败的消息：{}，exchange：{}",message,exchange);
+
             }
         });
     }

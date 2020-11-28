@@ -18,4 +18,6 @@ public interface SeckillService {
     List<SessionRedisTo> getCurrentSeckillSkus();
 
     SessionRedisTo getSeckillSkus(Long skuId);
+
+    String buySeckillSkus(String seckillId, String key, Integer num);
 }

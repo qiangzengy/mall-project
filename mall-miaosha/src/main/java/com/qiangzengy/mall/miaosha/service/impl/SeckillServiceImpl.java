@@ -2,17 +2,23 @@ package com.qiangzengy.mall.miaosha.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.qiangzengy.common.to.SessionRedisTo;
+import com.qiangzengy.common.to.mq.SeckillOrderTo;
 import com.qiangzengy.common.utils.R;
+import com.qiangzengy.common.vo.MemberRespVo;
 import com.qiangzengy.common.vo.SeckillSessionVo;
 import com.qiangzengy.common.vo.SeckillSkuInfoVo;
 import com.qiangzengy.common.vo.SeckillSkuRelationVo;
 import com.qiangzengy.mall.miaosha.feign.CouponFeignService;
 import com.qiangzengy.mall.miaosha.feign.ProductFeignService;
+import com.qiangzengy.mall.miaosha.interceptor.LoginUserInterceptor;
 import com.qiangzengy.mall.miaosha.service.SeckillService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
@@ -21,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -43,6 +50,9 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     //活动的key
     private final String SESSION_PREFIX = "seckill:sessions:";
@@ -171,5 +181,65 @@ public class SeckillServiceImpl implements SeckillService {
             }
         }
         return null;
+    }
+
+    @Override
+    public String buySeckillSkus(String seckillId, String key, Integer num) {
+
+        MemberRespVo memberRespVo = LoginUserInterceptor.loginUser.get();
+
+
+        // 获取秒杀详细信息
+        BoundHashOperations<String, String, String> operations = stringRedisTemplate.boundHashOps(SESSION_ITEM);
+        String s = operations.get(seckillId);
+        if (StringUtils.isEmpty(s)){
+            return null;
+        }
+        SessionRedisTo sessionRedisTo = JSON.parseObject(s, SessionRedisTo.class);
+        // 校验时间合法性
+        Long startTime = sessionRedisTo.getStartTime();
+        Long endTime = sessionRedisTo.getEndTime();
+        long time = new Date().getTime();
+        if (time < startTime || time > endTime) {
+            return null;
+        }
+        // 校验随机码
+        String seckillIdRedis = sessionRedisTo.getPromotionSessionId() + "_" + sessionRedisTo.getSkuId();
+        if (!sessionRedisTo.getRandomCode().equals(key)) {
+            return null;
+        }
+        if (!seckillIdRedis.equals(seckillId)) {
+            return null;
+        }
+        // 校验购买数量
+        if (num>sessionRedisTo.getSeckillLimit()){
+            return null;
+        }
+        // 是否购买过，判断redis是否存在这个值,key: userId_promotionSessionId_skuId
+        String buyKey=memberRespVo.getId()+"_"+seckillIdRedis;
+        long timeOut=endTime-time;
+        Boolean aBoolean = stringRedisTemplate.opsForValue().setIfAbsent(buyKey, num + "",timeOut, TimeUnit.MINUTES);
+        if (!aBoolean){
+            return null;
+        }
+
+        //获取redis信号量
+        RSemaphore semaphore = redissonClient.getSemaphore(SKU_STOCK_SEMAPHORE + key);
+        //acquire()阻塞的，这里不可以使用
+        try {
+            semaphore.tryAcquire(num,100,TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            return null;
+        }
+        // 给MQ发送消息
+        String orderSn = IdWorker.getTimeId();
+        SeckillOrderTo seckillOrderTo=new SeckillOrderTo();
+        BeanUtils.copyProperties(sessionRedisTo,seckillOrderTo);
+        seckillOrderTo.setNum(num);
+        seckillOrderTo.setOrderSn(orderSn);
+        seckillOrderTo.setMemberId(memberRespVo.getId());
+        seckillOrderTo.setMemberUsername(memberRespVo.getUsername());
+        rabbitTemplate.convertAndSend("order-event-exchange","order.seckill.order",seckillOrderTo);
+        return orderSn;
     }
 }

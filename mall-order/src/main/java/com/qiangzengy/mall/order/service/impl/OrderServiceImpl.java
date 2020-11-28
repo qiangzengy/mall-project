@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.qiangzengy.common.constant.OrderConstant;
 import com.qiangzengy.common.exception.NoStockException;
 import com.qiangzengy.common.to.mq.OrderEntityTo;
+import com.qiangzengy.common.to.mq.SeckillOrderTo;
 import com.qiangzengy.common.utils.R;
 import com.qiangzengy.mall.order.entity.OrderItemEntity;
 import com.qiangzengy.mall.order.enume.OrderStatusEnum;
@@ -405,7 +406,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
      * @param entity
      */
     @Override
-    public void   closeOrder(OrderEntity entity) {
+    public void closeOrder(OrderEntity entity) {
 
         //1.查询订单的状态,待付款，才可以关闭
         OrderEntity orderEntity = baseMapper.selectById(entity.getId());
@@ -453,5 +454,28 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         List<OrderItemEntity> orderItemEntities = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", orderSn));
         payVo.setSubject(orderItemEntities.get(0).getSkuName());
         return payVo;
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void createSeckillOrder(SeckillOrderTo seckillOrderTo) {
+        //保存订单信息
+        OrderEntity orderEntity=new OrderEntity();
+        orderEntity.setMemberId(seckillOrderTo.getMemberId());
+        orderEntity.setOrderSn(seckillOrderTo.getOrderSn());
+        orderEntity.setMemberUsername(seckillOrderTo.getMemberUsername());
+        BigDecimal price=seckillOrderTo.getSeckillPrice().multiply(new BigDecimal(seckillOrderTo.getNum()));
+        orderEntity.setTotalAmount(price);
+        orderEntity.setPayAmount(price);
+        orderEntity.setStatus(OrderStatusEnum.CREATE_NEW.getCode());
+        this.save(orderEntity);
+        //保存订单项信息
+        OrderItemEntity orderItemEntity = new OrderItemEntity();
+        orderItemEntity.setOrderSn(seckillOrderTo.getOrderSn());
+        orderItemEntity.setSkuPrice(seckillOrderTo.getSeckillPrice());
+        orderItemEntity.setSkuQuantity(seckillOrderTo.getNum());
+        orderItemService.save(orderItemEntity);
+
     }
 }
