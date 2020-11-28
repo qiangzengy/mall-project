@@ -89,7 +89,7 @@ public class SeckillServiceImpl implements SeckillService {
                 // 获取所有的商品id
                 List<String> collect = session.getSeckillSkuRelationEntities().stream().map(data -> data.getPromotionSessionId() + "_" + data.getSkuId()).collect(Collectors.toList());
                 // 从左边放
-                stringRedisTemplate.opsForList().leftPushAll(SESSION_PREFIX + key);
+                stringRedisTemplate.opsForList().leftPushAll(SESSION_PREFIX + key,collect);
                 log.info("缓存活动信息,key:{},data:{}",SESSION_PREFIX + key,collect);
             }
 
@@ -222,7 +222,6 @@ public class SeckillServiceImpl implements SeckillService {
         if (!aBoolean){
             return null;
         }
-
         //获取redis信号量
         RSemaphore semaphore = redissonClient.getSemaphore(SKU_STOCK_SEMAPHORE + key);
         //acquire()阻塞的，这里不可以使用
@@ -239,7 +238,11 @@ public class SeckillServiceImpl implements SeckillService {
         seckillOrderTo.setOrderSn(orderSn);
         seckillOrderTo.setMemberId(memberRespVo.getId());
         seckillOrderTo.setMemberUsername(memberRespVo.getUsername());
-        rabbitTemplate.convertAndSend("order-event-exchange","order.seckill.order",seckillOrderTo);
+        try {
+            rabbitTemplate.convertAndSend("order-event-exchange","order.seckill.order",seckillOrderTo);
+        }catch (Exception e) {
+            stringRedisTemplate.delete(buyKey);
+        }
         return orderSn;
     }
 }

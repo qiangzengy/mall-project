@@ -17,5 +17,9 @@ spring:
     port: 6379
   session:
     store-type: redis
+  rabbitmq:
+    host: 192.168.1.114
+    port: 5672
+    virtual-host: /
 task:
   seckill: 0 0/30 0 * * ? #每天24点执行一次
