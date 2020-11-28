@@ -51,7 +51,7 @@ public class SeckillContriller {
     @GetMapping("/buy/skus")
     public R buySeckillSkus(@RequestParam("seckillId") String seckillId,@RequestParam("key") String key,@RequestParam("num") Integer num){
         String orderSn=seckillService.buySeckillSkus(seckillId,key,num);
-        return R.ok(orderSn);
+        return R.ok().setData(orderSn);
     }
 
 
