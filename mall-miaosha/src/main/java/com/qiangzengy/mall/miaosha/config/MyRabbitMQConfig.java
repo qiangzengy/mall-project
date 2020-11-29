@@ -21,8 +21,8 @@ import javax.annotation.PostConstruct;
 public class MyRabbitMQConfig {
 
 
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
+//    @Autowired
+//    private RabbitTemplate rabbitTemplate;
 
     /**
      * 消息类型转换器
@@ -47,39 +47,39 @@ public class MyRabbitMQConfig {
      *     spring.rabbitmq.listener.direct.acknowledge-mode=manual
      *
      */
-    @PostConstruct //MyRabbitMQ对象创建完成以后，执行这个方法
-    public void initRabbitTemplate(){
-        /*
-         *
-         * 只要消息抵达Broker，ack就是true
-         * correlationData ：当前消息的唯一关联数据（消息的唯一id）
-         * ack：消息是否成功收到
-         * cause：失败的原因
-         */
-        //设置确认回调
-        rabbitTemplate.setConfirmCallback((correlationData, ack, cause) ->
-                log.info("秒杀信息，确认回调，cause:{}",cause)
-        );
-
-
-        //设置消息抵达队列回调
-        rabbitTemplate.setReturnCallback(new RabbitTemplate.ReturnCallback() {
-
-            /**
-             *
-             * @param message 投递失败的消息的详细信息
-             * @param replyCode  回复的状态码
-             * @param replyText  回复的文本内容
-             * @param exchange   消息发给哪个交换机
-             * @param routingKey  消息用的哪个路由键
-             */
-            @Override
-            public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
-                log.info("秒杀信息，失败的消息：{}，exchange：{}",message,exchange);
-
-            }
-        });
-    }
+//    @PostConstruct //MyRabbitMQ对象创建完成以后，执行这个方法
+//    public void initRabbitTemplate(){
+//        /*
+//         *
+//         * 只要消息抵达Broker，ack就是true
+//         * correlationData ：当前消息的唯一关联数据（消息的唯一id）
+//         * ack：消息是否成功收到
+//         * cause：失败的原因
+//         */
+//        //设置确认回调
+//        rabbitTemplate.setConfirmCallback((correlationData, ack, cause) ->
+//                log.info("秒杀信息，确认回调，cause:{}",cause)
+//        );
+//
+//
+//        //设置消息抵达队列回调
+//        rabbitTemplate.setReturnCallback(new RabbitTemplate.ReturnCallback() {
+//
+//            /**
+//             *
+//             * @param message 投递失败的消息的详细信息
+//             * @param replyCode  回复的状态码
+//             * @param replyText  回复的文本内容
+//             * @param exchange   消息发给哪个交换机
+//             * @param routingKey  消息用的哪个路由键
+//             */
+//            @Override
+//            public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
+//                log.info("秒杀信息，失败的消息：{}，exchange：{}",message,exchange);
+//
+//            }
+//        });
+//    }
 
 
 

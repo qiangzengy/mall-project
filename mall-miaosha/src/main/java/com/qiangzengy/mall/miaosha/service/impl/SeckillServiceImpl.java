@@ -83,13 +83,14 @@ public class SeckillServiceImpl implements SeckillService {
             long startTime = session.getStartTime().getTime();
             long endTime = session.getEndTime().getTime();
             // seckill:sessions:21488948339_21489998339
-            String key = startTime + "_" + endTime;
+            String key = SESSION_PREFIX+startTime + "_" + endTime;
             Boolean aBoolean = stringRedisTemplate.hasKey(key);
             if (!aBoolean) {
                 // 获取所有的商品id
                 List<String> collect = session.getSeckillSkuRelationEntities().stream().map(data -> data.getPromotionSessionId() + "_" + data.getSkuId()).collect(Collectors.toList());
                 // 从左边放
-                stringRedisTemplate.opsForList().leftPushAll(SESSION_PREFIX + key,collect);
+                stringRedisTemplate.opsForList().leftPushAll(key,collect);
+                stringRedisTemplate.expireAt(key,new Date(endTime));
                 log.info("缓存活动信息,key:{},data:{}",SESSION_PREFIX + key,collect);
             }
 
@@ -122,12 +123,14 @@ public class SeckillServiceImpl implements SeckillService {
                     // 随机码,防止恶意攻击
                     sessionRedisTo.setRandomCode(randomCode);
                     operations.put(entity.getPromotionSessionId() + "_" + entity.getSkuId(), JSON.toJSONString(sessionRedisTo));
+                    operations.expireAt(session.getEndTime());
                     String key = operations.get(entity.getPromotionSessionId() + "_" + entity.getSkuId());
                     log.info("缓存活动的商品信息,key:{},data:{}",entity.getPromotionSessionId() + "_" + entity.getSkuId(),key);
                     // 得到redis信号量
                     RSemaphore semaphore = redissonClient.getSemaphore(SKU_STOCK_SEMAPHORE + randomCode);
                     // 设置信号量,商品秒杀数量,限流
                     semaphore.trySetPermits(entity.getSeckillCount());
+                    semaphore.expireAt(session.getEndTime());
                 }
 
             }
