@@ -7,9 +7,17 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
+    sentinel:
+      transport:
+        dashboard: 192.168.1.118:9500
 aliyun:
   oss:
     access-id: LTAI4GHjUaiNivvibrySo9rW
     access-key: 67Y2fT4JCMPGkttQXFhn8tQrdU1M7g
     endpoint: oss-cn-beijing.aliyuncs.com
     bucket: mall-data
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

@@ -11,6 +11,9 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
+    sentinel:
+      transport:
+        dashboard: 192.168.1.118:9500
   thymeleaf:
     cache: false
   redis:
@@ -26,3 +29,9 @@ weibo:
     client_secret: a263e9284c6c1a74a62adacs11b6e2
     grant_type: authorization_code
     redirect_uri: http://gulimall.com/oauth2/weibo/success
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

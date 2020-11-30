@@ -1,8 +1,6 @@
 package com.qiangzengy.mall.miaosha.config;
 
-import com.alibaba.csp.sentinel.adapter.servlet.callback.UrlBlockHandler;
 import com.alibaba.csp.sentinel.adapter.servlet.callback.WebCallbackManager;
-import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.fastjson.JSON;
 import com.qiangzengy.common.utils.R;
 import org.springframework.context.annotation.Configuration;

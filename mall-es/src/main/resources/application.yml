@@ -10,6 +10,9 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.1.114:8848
+    sentinel:
+      transport:
+        dashboard: 192.168.1.118:9500
   redis:
     host: 192.168.1.118
   session:
@@ -17,3 +20,8 @@ spring:
 mall:
   elasticsearch:
     ip_address: 192.168.1.114
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

@@ -10,6 +10,9 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.1.114:8848
+    sentinel:
+      transport:
+        dashboard: 192.168.1.118:9500
   application:
     name: mall-member
   thymeleaf:
@@ -27,3 +30,8 @@ mybatis-plus:
 logging:
   level:
     com.qiangzengy.mall: debug
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

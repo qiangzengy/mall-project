@@ -11,6 +11,9 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
+    sentinel:
+      transport:
+        dashboard: 192.168.1.118:9500
   thymeleaf:
     cache: false
 #将购物车信息可以单独放入一个人redis
@@ -21,3 +24,8 @@ spring:
   #spring session
   session:
     store-type: redis
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

@@ -35,9 +35,13 @@ spring:
         acknowledge-mode: manual
 task:
   seckill: 0 0/30 0 * * ? #每天24点执行一次
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: '*'
 management:
   endpoints:
     web:
       exposure:
         include: '*'
-
