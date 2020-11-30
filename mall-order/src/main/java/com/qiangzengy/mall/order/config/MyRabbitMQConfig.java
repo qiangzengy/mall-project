@@ -2,6 +2,7 @@ package com.qiangzengy.mall.order.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -9,6 +10,7 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import javax.annotation.PostConstruct;
 
@@ -22,8 +24,19 @@ import javax.annotation.PostConstruct;
 public class MyRabbitMQConfig {
 
 
-    @Autowired
+    //@Autowired
     private RabbitTemplate rabbitTemplate;
+
+
+    @Primary
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory){
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(messageConverter());
+        this.rabbitTemplate=rabbitTemplate;
+        initRabbitTemplate();
+        return rabbitTemplate;
+    }
 
     /**
      * 消息类型转换器
@@ -48,7 +61,7 @@ public class MyRabbitMQConfig {
      *     spring.rabbitmq.listener.direct.acknowledge-mode=manual
      *
      */
-    @PostConstruct //MyRabbitMQ对象创建完成以后，执行这个方法
+    //@PostConstruct //MyRabbitMQ对象创建完成以后，执行这个方法
     public void initRabbitTemplate(){
         /*
          *

@@ -1,6 +1,7 @@
 package com.qiangzengy.mall.product.feign;
 
 import com.qiangzengy.common.utils.R;
+import com.qiangzengy.mall.product.feign.fallback.SeckillFeignServiceFallBack;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
  * @date 2020/11/27
  */
 
-@FeignClient("mall-miaosha")
+@FeignClient(value = "mall-miaosha",fallback = SeckillFeignServiceFallBack.class)
 public interface SeckillFeignService {
 
     @GetMapping("/seckill/current/skus/{skuId}")

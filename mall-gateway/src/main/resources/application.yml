@@ -71,6 +71,11 @@ spring:
           predicates:
             - Host=order.gulimall.com
 
+        - id: mall_seckill_route
+          uri: lb://mall-seckill
+          predicates:
+            - Host=seckill.gulimall.com
+
     nacos:
       discovery:
         server-addr: 192.168.1.114:8848
