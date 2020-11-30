@@ -54,5 +54,10 @@ public class SeckillContriller {
         return R.ok().setData(orderSn);
     }
 
+    @GetMapping("success")
+    public R success(){
+        return R.ok();
+    }
+
 
 }
