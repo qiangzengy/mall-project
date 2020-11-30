@@ -7,6 +7,14 @@ server:
 spring:
   application:
     name: mall-cart
+  zipkin:
+    base-url: 192.168.1.114:9411
+    discovery-client-enabled: false
+    sender:
+      type: web
+  sleuth:
+    sampler:
+      probability: 1
   cloud:
     nacos:
       discovery:
