@@ -21,7 +21,8 @@ public class MyThreadConfig {
                 properties.getKeepAliveTime(),
                 TimeUnit.SECONDS,
                 new LinkedBlockingDeque<>(100000),
-                Executors.defaultThreadFactory(),
+                //Executors.defaultThreadFactory(),
+                new MyThreadFactory("cart"),
                 new ThreadPoolExecutor.AbortPolicy()
         );
 

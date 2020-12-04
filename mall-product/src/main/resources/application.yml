@@ -51,6 +51,6 @@ management:
       exposure:
         include: '*'
 
-feign:
-  sentinel:
-    enabled: true
+#feign:
+#  sentinel:
+#    enabled: true

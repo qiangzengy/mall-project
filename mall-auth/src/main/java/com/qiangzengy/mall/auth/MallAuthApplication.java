@@ -6,6 +6,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * SpringSession的核心原理（装饰者模式）
  *
@@ -28,5 +30,6 @@ public class MallAuthApplication {
     public static void main(String[] args) {
         SpringApplication.run(MallAuthApplication.class, args);
     }
+
 
 }

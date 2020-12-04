@@ -32,11 +32,12 @@ public class SeckillTask {
     /**
      * 上架最近3天的秒杀信息
      */
-    @Scheduled(cron = "0 2 17 * * ?")
-    @Async
+    //@Scheduled(cron = "0 7 17 * * ?")
+    @Scheduled(cron = "${task.seckill}")
+    @Async("threadPool")
     public void seckillUpTask(){
+        log.info("thread name:{}",Thread.currentThread().getName());
         //幂等性处理，分布式锁
-
         RLock lock = redissonClient.getLock("seckill:up:task");
         lock.lock(10, TimeUnit.SECONDS);
         try {

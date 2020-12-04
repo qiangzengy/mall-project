@@ -15,15 +15,15 @@ public class MyThreadConfig {
     @Bean
     public ThreadPoolExecutor threadPool(ThreadPoolConfigProperties properties){
 
-        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+        return new ThreadPoolExecutor(
                 properties.getCoreSize(),
                 properties.getMaxSize(),
                 properties.getKeepAliveTime(),
                 TimeUnit.SECONDS,
                 new LinkedBlockingDeque<>(100000),
-                Executors.defaultThreadFactory(),
+                //Executors.defaultThreadFactory() ,
+                new MyThreadFactory("product"),
                 new ThreadPoolExecutor.AbortPolicy()
         );
-        return threadPoolExecutor;
     }
 }

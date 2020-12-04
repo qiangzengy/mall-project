@@ -27,9 +27,12 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author qiangzengy@gmail.com
@@ -79,12 +82,12 @@ public class SeckillServiceImpl implements SeckillService {
     }
 
     private void saveSessInfos(List<SeckillSessionVo> list) {
-        list.stream().forEach(session -> {
+        list.forEach(session -> {
             long startTime = session.getStartTime().getTime();
             long endTime = session.getEndTime().getTime();
             // seckill:sessions:21488948339_21489998339
             String key = SESSION_PREFIX+startTime + "_" + endTime;
-            Boolean aBoolean = stringRedisTemplate.hasKey(key);
+            boolean aBoolean = stringRedisTemplate.hasKey(key);
             if (!aBoolean) {
                 // 获取所有的商品id
                 List<String> collect = session.getSeckillSkuRelationEntities().stream().map(data -> data.getPromotionSessionId() + "_" + data.getSkuId()).collect(Collectors.toList());
@@ -140,8 +143,9 @@ public class SeckillServiceImpl implements SeckillService {
     @Override
     public List<SessionRedisTo> getCurrentSeckillSkus() {
         //确定当前时间属于那个秒杀场次
-        long time = new Date().getTime();
+        long time = System.currentTimeMillis();
         Set<String> keys = stringRedisTemplate.keys(SESSION_PREFIX + "*");
+        assert keys != null;
         for (String key : keys) {
             log.info("key:{}",key);
             String replace = key.replace(SESSION_PREFIX, "");
@@ -153,6 +157,7 @@ public class SeckillServiceImpl implements SeckillService {
                 //获取商品数据
                 List<String> range = stringRedisTemplate.opsForList().range(key, -100, 100);
                 BoundHashOperations<String, String, String> operations = stringRedisTemplate.boundHashOps(SESSION_ITEM);
+                assert range != null;
                 List<String> list = operations.multiGet(range);
                 if (Objects.nonNull(list)){
                   return   list.stream().map(item ->
@@ -202,7 +207,7 @@ public class SeckillServiceImpl implements SeckillService {
         // 校验时间合法性
         Long startTime = sessionRedisTo.getStartTime();
         Long endTime = sessionRedisTo.getEndTime();
-        long time = new Date().getTime();
+        long time = System.currentTimeMillis();
         if (time < startTime || time > endTime) {
             return null;
         }

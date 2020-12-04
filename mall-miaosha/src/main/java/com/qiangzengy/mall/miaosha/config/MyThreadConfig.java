@@ -1,9 +1,8 @@
-package com.qiangzengy.mall.order.config;
+package com.qiangzengy.mall.miaosha.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -21,13 +20,9 @@ public class MyThreadConfig {
                 properties.getKeepAliveTime(),
                 TimeUnit.SECONDS,
                 new LinkedBlockingDeque<>(100000),
-                //Executors.defaultThreadFactory(),
-                new MyThreadFactory("order"),
+                //Executors.defaultThreadFactory() ,
+                new MyThreadFactory("seckill"),
                 new ThreadPoolExecutor.AbortPolicy()
         );
-
     }
-
-
-
 }
