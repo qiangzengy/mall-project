@@ -34,6 +34,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -45,7 +46,7 @@ import java.util.stream.Collectors;
 @Service
 public class MallSeaechServiceImpl implements MallSearchService {
 
-    @Autowired
+    @Resource
     private RestHighLevelClient restHighLevelClient;
 
     @Autowired
@@ -193,7 +194,7 @@ public class MallSeaechServiceImpl implements MallSearchService {
     private SearchRequest buildSearchRequest(SearchParam searchParam) {
         SearchSourceBuilder searchSourceBuilder=new SearchSourceBuilder();
         // 构建检索条件
-        /**
+        /*
          * 1。查询模糊匹配，过滤（属性、分类、价格区间、品牌、库存）
          * 2。排序、分页、高亮
          * 3。聚合分析

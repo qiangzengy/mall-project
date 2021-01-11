@@ -30,7 +30,6 @@ public class MyRedissonConfig {
         //单节点模式
         config.useSingleServer().setAddress("redis://"+host+":"+port);
         //config.useSingleServer().setAddress("redis://192.168.1.114:6379");
-
         //集群模式
         /*config.useClusterServers()
                 .addNodeAddress("127.0.0.1:7004", "127.0.0.1:7001");*/

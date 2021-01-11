@@ -37,12 +37,12 @@ public class MyRabbitConfig {
     @Bean
     public Queue stockDelayQueue(){
 
-        /**
+        /*
          * new Queue(String name, boolean durable, boolean exclusive, boolean autoDelete,
          *                        @Nullable Map<String, Object> arguments);
          */
 
-        /**
+        /*
          * x-dead-letter-exchange: order-event-exchange
          * x x-dead-letter-routing-key: order.reLease.order
          * x-message-ttl: 60000

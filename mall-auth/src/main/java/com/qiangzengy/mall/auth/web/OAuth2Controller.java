@@ -83,7 +83,7 @@ public class OAuth2Controller {
 
                 //指定域名为父域名
 
-                /**
+                /*
                  * 使用Spring session解决session共享问题
                  * 1。默认发的令牌，作用域是当前域(解决子域共享问题)
                  * 2。使用Json序列化来序列化对象存入redis

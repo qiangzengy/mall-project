@@ -42,7 +42,7 @@ public class CartController {
     public String cartListPage(Model model) throws ExecutionException, InterruptedException {
 
         //快速得到用户信息，可以使用ThreadLocal
-        /**
+        /*
          * ThreadLocal：在同一个线程共享数据
          */
         //UserInfoTo userInfoTo = CartInterceptor.threadLocal.get();
